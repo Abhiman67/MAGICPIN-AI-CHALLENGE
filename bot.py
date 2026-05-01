@@ -533,6 +533,58 @@ def persuasion_line(kind: str, merchant: dict[str, Any], trigger: dict[str, Any]
     return ""
 
 
+def trigger_specificity_line(kind: str, merchant: dict[str, Any], category: dict[str, Any], trigger: dict[str, Any]) -> str:
+    payload = trigger_payload(trigger)
+    ctr = merchant_ctr(merchant)
+    peer_ctr = category_peer_ctr(category)
+    if kind in {"perf_dip", "seasonal_perf_dip", "perf_spike"}:
+        delta_7d = safe_get(merchant, "performance", "delta_7d", default={}) or {}
+        views_pct = delta_7d.get("views_pct")
+        calls_pct = delta_7d.get("calls_pct")
+        if isinstance(views_pct, (int, float)) and isinstance(calls_pct, (int, float)):
+            return f"This week: views {views_pct:+.0%}, calls {calls_pct:+.0%}."
+    if kind in {"lead_missed_searches", "lead_followup_due"}:
+        missed = payload.get("missed_searches") or payload.get("missed_leads")
+        if missed is not None:
+            return f"Signal count right now: ~{missed} missed opportunities."
+    if kind in {"profile_incomplete", "profile_hours_missing", "profile_attributes_missing", "seo_visibility_gap"}:
+        missing_fields = payload.get("missing_fields") or []
+        if isinstance(missing_fields, list) and missing_fields:
+            return f"Priority fix count: {len(missing_fields[:4])} field(s)."
+    if kind in {"review_sentiment_alert", "review_response_draft", "review_theme_emerged"}:
+        review_count = payload.get("review_count") or payload.get("occurrences_30d")
+        if review_count is not None:
+            return f"Observed review volume in trigger: {review_count}."
+    if kind == "renewal_due":
+        days_remaining = merchant_days_remaining(merchant)
+        if days_remaining is not None:
+            return f"Renewal window remaining: {days_remaining} day(s)."
+    if ctr is not None and peer_ctr is not None:
+        return f"Reference: CTR {ctr:.1%} vs peer {peer_ctr:.1%}."
+    return ""
+
+
+def trigger_action_line(kind: str, merchant: dict[str, Any], trigger: dict[str, Any]) -> str:
+    offer = active_offer(merchant)
+    if kind in {"perf_dip", "seasonal_perf_dip", "perf_spike", "festival_upcoming", "ipl_match_today", "local_news_event"}:
+        offer_title = offer.get("title") if offer else "your top offer"
+        return f"If you reply DRAFT, I’ll send 1 post + 1 reply script for {offer_title}."
+    if kind in {"review_sentiment_alert", "review_response_draft", "review_theme_emerged"}:
+        return "If you reply DRAFT, I’ll send 3 response templates by tone: apology, neutral, and assertive."
+    if kind in {"profile_incomplete", "profile_hours_missing", "profile_attributes_missing", "seo_visibility_gap"}:
+        return "If you reply CHECKLIST, I’ll send the exact update order in 5 steps."
+    if kind in {"lead_missed_searches", "lead_followup_due"}:
+        return "If you reply PLAN, I’ll send a 7-day lead-capture plan with daily actions."
+    if kind in {"photo_gap_detected", "content_pack_ready"}:
+        return "If you reply PACK, I’ll send shot list + caption pack for this week."
+    if kind in {"renewal_due"}:
+        return "If you reply SEND, I’ll draft the renewal CTA for one-tap approval."
+    if kind in {"active_planning_intent"}:
+        topic = trigger_payload(trigger).get("intent_topic") or "this plan"
+        return f"If you reply GO, I’ll send a ready-to-send draft for {topic}."
+    return "If useful, reply DRAFT and I’ll prepare the exact next message."
+
+
 def category_digest_item(category: dict[str, Any], trigger: dict[str, Any]) -> dict[str, Any] | None:
     payload = trigger.get("payload", {})
     item_id = payload.get("top_item_id")
@@ -1048,6 +1100,14 @@ def build_first_touch(
         body += " Want me to draft the next step?"
         cta_text = "Want me to draft the next step?"
         template_params = [salutation, truncate(body, 120), cta_text]
+
+    specificity_line = trigger_specificity_line(kind, merchant, category, trigger)
+    if specificity_line and specificity_line not in body:
+        body += f" {specificity_line}"
+    if customer is None:
+        action_line = trigger_action_line(kind, merchant, trigger)
+        if action_line and action_line not in body:
+            body += f" {action_line}"
 
     if language_mix and customer is None and category_slug in {"salons", "restaurants", "gyms", "pharmacies"}:
         body = hinglish_phrase(body, True)

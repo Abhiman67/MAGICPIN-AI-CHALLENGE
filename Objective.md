@@ -33,6 +33,8 @@ It currently provides:
 - Local automated checks: passing
 - Integration test suite: `8/8` tests passing
 - Offline judge harness run: passing (`all` + `full_evaluation` in `mock` mode)
+- Public deployment checks: passing (`healthz`, `metadata`, readiness lifecycle)
+- Online LLM judge run: passing (`all`) and scored (`full_evaluation`)
 - Core checks passing:
   - compile checks
   - HTTP contract checks
@@ -55,19 +57,21 @@ It currently provides:
 
 ### 1. Judge Contract Readiness
 
-Status: **Very High (local/offline)**
+Status: **Complete for submission baseline**
 
 - We are at a strong implementation level for the technical contract in `challenge-testing-brief.md`.
-- Remaining for final submission confidence is execution/environment-level:
-  - public deployment URL
-  - full judge simulator scoring run with configured real LLM API key/provider
+- Public hosting and real-provider judge execution are validated.
 
 ### 2. Quality/Scoring Readiness
 
 Status: **Medium-High**
 
 - P1 quality pass is completed (copy, persuasion framing, CTA policy, personalization depth, multilingual handling, negative-case handling).
-- Remaining is score maximization/tuning under real judge scoring output.
+- Latest external scored run in [`judge-report.txt`](/Users/abhishek/Downloads/magicpin-ai-challenge/judge-report.txt): **33/50 (66%)**.
+- Remaining is score maximization/tuning, especially:
+  - specificity
+  - decision quality
+  - engagement
 
 ### 3. Full Product Scope vs Public Challenge Page
 
@@ -81,7 +85,7 @@ Status: **Medium**
 ## Objective Level Summary
 
 - **Core challenge-engine objective:** mostly achieved
-- **Submission hardening objective:** nearly achieved
+- **Submission hardening objective:** achieved
 - **Full Vera product parity objective:** partially achieved (workflow-level done, external-system integration pending)
 
-Overall level relative to project requirements: **~88-92% complete** from an implementation perspective in this repository, with the remaining gap concentrated in deployment execution and external integrations.
+Overall level relative to project requirements: **~92-95% complete** from an implementation perspective in this repository, with the remaining gap concentrated in score optimization and deeper external integrations.

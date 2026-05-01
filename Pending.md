@@ -18,8 +18,12 @@
 
 ## P0 — Submission Confidence
 
-- Deploy to a public URL and perform one full end-to-end external reachability check
-- Run `judge_simulator.py` with configured real LLM provider/API key and collect score report artifacts
+P0 is complete:
+
+- Public deployment URL validation done (`healthz`/`metadata`/`readiness` behavior checked)
+- Real-provider judge run done (OpenRouter) for:
+  - `all` scenario
+  - `full_evaluation` with saved report artifact (`judge-report.txt`)
 
 P0 local checks are completed via `./scripts/run_p0.sh`:
 
@@ -38,6 +42,13 @@ P0 local checks are completed via `./scripts/run_p0.sh`:
 - Personalization depth improved using history/signals/offers/customer state
 - Ambiguity resolution and abuse de-escalation added
 - Multilingual (Hinglish) quality improved
+- Trigger-level specificity/actionability pass added:
+  - numeric evidence lines per trigger family
+  - concrete reply-keyword next steps (`DRAFT`/`PLAN`/`CHECKLIST`/`PACK`/`SEND`/`GO`)
+
+Remaining quality step:
+
+- Re-run `full_evaluation` and capture updated score delta after this pass
 
 ---
 

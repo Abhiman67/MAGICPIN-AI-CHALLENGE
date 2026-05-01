@@ -80,8 +80,15 @@ Validation runs:
 - `python3 -m unittest discover -s tests -p 'test_*.py' -q`
 - `./scripts/run_p0.sh`
 - `./scripts/run_judge_offline.sh` (mock LLM mode, both `all` and `full_evaluation`)
+- Public deployment smoke checks on Railway:
+  - `GET /v1/healthz` pass
+  - `GET /v1/metadata` pass
+  - `GET /v1/readiness` warming-before-context behavior confirmed
+- Online LLM judge run (`openrouter` + `openai/gpt-4o-mini`):
+  - `all` scenario pass
+  - `full_evaluation` completed and scored (`judge-report.txt`)
 
-All pass in local/offline mode.
+All required local/offline checks pass, and external hosted-judge runs are validated.
 
 ---
 
@@ -110,6 +117,10 @@ All remaining items are now enhancement-level, not blocker-level for a working c
 - Negative-case handling expanded:
   - ambiguity-resolution replies with clear options
   - abusive/off-topic de-escalation logic
+- Additional specificity/decision/engagement pass implemented:
+  - trigger-aware numeric specificity lines (missed leads, review volumes, deltas, renewal window, CTR vs peer)
+  - deterministic concrete action lines per trigger family (`DRAFT` / `PLAN` / `CHECKLIST` / `PACK` / `SEND` / `GO`)
+  - stronger immediate-next-step framing in first-touch messages
 
 ### 2. Optional Intelligence Upgrade
 
@@ -119,13 +130,13 @@ All remaining items are now enhancement-level, not blocker-level for a working c
 
 ### 3. Externalization and Delivery
 
-- Public deployment URL and hosted runtime setup for official judge submission
-- End-to-end dry run with full `judge_simulator.py` scoring harness using real configured LLM provider/API key (offline mock harness is complete)
-- Optional CI/CD wiring for automated checks on push
+- Public deployment URL and hosted runtime setup for official judge submission: completed
+- End-to-end dry run with full `judge_simulator.py` scoring harness using real configured LLM provider/API key: completed
+- Optional CI/CD wiring for automated checks on push: pending (optional)
 
 ---
 
 ## Bottom Line
 
-The project is technically complete for the core challenge contract, materially hardened for submission-style execution, and now includes first-cut implementations for the broader site-aligned workflow families.  
-What remains is mostly score tuning plus external deployment/harness execution steps.
+The project is technically complete for the core challenge contract, materially hardened for submission-style execution, and externally validated on a public deployment with an online LLM-judge run.  
+What remains is primarily score tuning and optional product-depth enhancements.

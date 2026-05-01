@@ -162,7 +162,15 @@ class LLMProvider(ABC):
 class OpenAIProvider(LLMProvider):
     def __init__(self, api_key: str, model: str = ""):
         self.api_key = api_key
-        self.model = model or "gpt-4o-mini"
+        self.model = self._normalize_model(model or "gpt-4o-mini")
+
+    @staticmethod
+    def _normalize_model(model: str) -> str:
+        # Keep the local harness resilient to obviously invalid model names.
+        if model == "gpt-5.4-mini":
+            print_warn("OpenAI model 'gpt-5.4-mini' is not accepted by this harness; using 'gpt-4o-mini' instead.")
+            return "gpt-4o-mini"
+        return model
 
     def name(self) -> str:
         return f"OpenAI ({self.model})"
@@ -185,9 +193,13 @@ class OpenAIProvider(LLMProvider):
             data=body,
             headers={"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
         )
-        resp = urlrequest.urlopen(req, timeout=TIMEOUT_LLM)
-        data = json.loads(resp.read().decode("utf-8"))
-        return data["choices"][0]["message"]["content"]
+        try:
+            resp = urlrequest.urlopen(req, timeout=TIMEOUT_LLM)
+            data = json.loads(resp.read().decode("utf-8"))
+            return data["choices"][0]["message"]["content"]
+        except urlerror.HTTPError as e:
+            details = e.read().decode("utf-8", errors="replace")
+            raise RuntimeError(f"OpenAI API request failed ({e.code}): {details}") from e
 
 
 class AnthropicProvider(LLMProvider):
