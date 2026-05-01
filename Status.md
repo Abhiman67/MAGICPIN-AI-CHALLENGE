@@ -122,6 +122,29 @@ All remaining items are now enhancement-level, not blocker-level for a working c
   - deterministic concrete action lines per trigger family (`DRAFT` / `PLAN` / `CHECKLIST` / `PACK` / `SEND` / `GO`)
   - stronger immediate-next-step framing in first-touch messages
 
+Current measured quality baseline from external run:
+
+- Overall: `34/50 (68%)`
+- Specificity: `7/10`
+- Category fit: `8/10`
+- Merchant fit: `7/10`
+- Decision quality: `6/10`
+- Engagement: `6/10`
+
+Planned next optimization sprint (to target ~`38-40/50`):
+
+- Add deterministic message-quality guardrail before send:
+  - enforce at least one numeric/context anchor
+  - enforce one explicit decision path for action-oriented triggers
+  - reduce generic “quick update” phrasing repetition
+- Strengthen weakest trigger families from judge output:
+  - `active_planning_intent`
+  - `profile_*`
+  - `review_*`
+  - `lead_*`
+  - `perf_dip` variants
+- Re-run external `full_evaluation`, compare dimension deltas, and iterate only on bottom-performing families.
+
 ### 2. Optional Intelligence Upgrade
 
 - Add pluggable LLM composer mode (while keeping deterministic fallback)

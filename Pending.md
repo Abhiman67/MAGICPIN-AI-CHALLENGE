@@ -50,6 +50,20 @@ Remaining quality step:
 
 - Re-run `full_evaluation` and capture updated score delta after this pass
 
+Active optimization plan (in progress):
+
+- Implement deterministic quality guard in first-touch composition:
+  - require at least one hard specificity anchor (metric/count/comparison)
+  - require one explicit micro-commitment action for action triggers
+  - normalize CTA phrasing away from vague asks
+- Apply targeted copy upgrades to lowest-scoring families:
+  - `active_planning_intent`, `profile_*`, `review_*`, `lead_*`, `perf_dip`
+- Validation loop:
+  - run tests
+  - redeploy
+  - run `full_evaluation`
+  - track per-dimension deltas vs baseline `34/50`
+
 ---
 
 ## P2 — Product Expansion Beyond Judge Contract

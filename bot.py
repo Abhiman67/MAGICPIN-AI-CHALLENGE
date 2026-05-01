@@ -802,6 +802,39 @@ def cta_for_kind(kind: str, info_only: bool = False) -> str:
     return "open_ended"
 
 
+def has_numeric_anchor(text: str) -> bool:
+    return bool(re.search(r"\d", text)) or "%" in text or "₹" in text
+
+
+def enforce_first_touch_quality(
+    body: str,
+    kind: str,
+    scope: str,
+    merchant: dict[str, Any],
+    category: dict[str, Any],
+    trigger: dict[str, Any],
+) -> str:
+    """Deterministic quality guardrail for first-touch content."""
+    hardened = body
+    specificity = trigger_specificity_line(kind, merchant, category, trigger)
+    action_line = trigger_action_line(kind, merchant, trigger)
+    action_needed = scope != "customer" and kind not in {"milestone_reached"}
+
+    if not has_numeric_anchor(hardened) and specificity:
+        hardened += f" {specificity}"
+    if action_needed:
+        normalized = normalize(hardened)
+        if "reply " not in normalized and "want me to" in normalized and action_line:
+            hardened += f" {action_line}"
+        elif "reply " not in normalized and action_line:
+            hardened += f" {action_line}"
+
+    if "quick update from vera." in normalize(hardened):
+        hardened = hardened.replace("quick update from Vera.", "here is the highest-impact update for today.")
+
+    return truncate(hardened, 420)
+
+
 def build_first_touch(
     category: dict[str, Any],
     merchant: dict[str, Any],
@@ -976,11 +1009,12 @@ def build_first_touch(
         theme = trigger_payload(trigger).get("theme") or first(merchant.get("review_themes", []), {}).get("theme", "a review theme")
         count = trigger_payload(trigger).get("occurrences_30d")
         body = f"{salutation}, {count or 'several'} reviews are pointing at {str(theme).replace('_', ' ')}."
-        body += " Want me to draft a response and a fix-it post?"
+        body += " Pick 1 for a response draft, or 2 for a fix-it post."
         lever = persuasion_line(kind, merchant, trigger)
         if lever:
             body += f" {lever}"
-        cta_text = "Want me to draft the response?"
+        body += " Reply 1 or 2."
+        cta_text = "Reply 1 or 2."
         template_params = [salutation, truncate(body, 120), cta_text]
 
     elif kind == "competitor_opened":
@@ -1012,15 +1046,15 @@ def build_first_touch(
         review_count = trigger_payload(trigger).get("review_count") or trigger_payload(trigger).get("occurrences_30d") or "recent"
         body = f"{salutation}, I spotted {review_count} {sentiment} review signal(s) for {merchant.get('identity', {}).get('name', 'your profile')}."
         if sentiment == "negative":
-            body += " I can draft apology-first responses and an escalation checklist."
+            body += " Pick 1 for apology-first responses, or 2 for escalation checklist."
         else:
-            body += " I can draft response templates and a highlight post."
+            body += " Pick 1 for response templates, or 2 for a highlight post."
         body += f" Recent account state: {history_line}."
         lever = persuasion_line(kind, merchant, trigger)
         if lever:
             body += f" {lever}"
-        body += " Want me to prepare it now?"
-        cta_text = "Want me to draft the response pack?"
+        body += " Reply 1 or 2."
+        cta_text = "Reply 1 or 2."
         template_params = [salutation, truncate(body, 120), cta_text]
 
     elif kind in {"profile_incomplete", "profile_hours_missing", "profile_attributes_missing", "seo_visibility_gap"}:
@@ -1038,8 +1072,9 @@ def build_first_touch(
         lever = persuasion_line(kind, merchant, trigger)
         if lever:
             body += f" {lever}"
-        body += " Want me to prepare a one-tap update checklist?"
-        cta_text = "Want the checklist?"
+        body += " Pick 1 for top-3 quick fixes, or 2 for full checklist."
+        body += " Reply 1 or 2."
+        cta_text = "Reply 1 or 2."
         template_params = [salutation, truncate(body, 120), cta_text]
 
     elif kind in {"lead_missed_searches", "lead_followup_due"}:
@@ -1052,8 +1087,9 @@ def build_first_touch(
         lever = persuasion_line(kind, merchant, trigger)
         if lever:
             body += f" {lever}"
-        body += " Want me to draft a visibility-to-lead action plan?"
-        cta_text = "Want the lead plan?"
+        body += " Pick 1 for quick 3-step patch, or 2 for full 7-day plan."
+        body += " Reply 1 or 2."
+        cta_text = "Reply 1 or 2."
         template_params = [salutation, truncate(body, 120), cta_text]
 
     elif kind in {"photo_gap_detected", "content_pack_ready"}:
@@ -1063,9 +1099,9 @@ def build_first_touch(
             body += f" Photo gap detected: {missing_photos} slot(s)."
         if signal_line:
             body += f" {signal_line}."
-        body += " I can draft post copy plus shot suggestions for this week."
-        body += " Want me to prepare it?"
-        cta_text = "Want the content pack?"
+        body += " Pick 1 for 5-shot list, or 2 for full content pack with captions."
+        body += " Reply 1 or 2."
+        cta_text = "Reply 1 or 2."
         template_params = [salutation, truncate(body, 120), cta_text]
 
     elif kind == "active_planning_intent":
@@ -1076,8 +1112,9 @@ def build_first_touch(
             body += f" You said: “{truncate(merchant_last_message, 80)}”."
         if offer:
             body += f" I’ve anchored it to {offer.get('title')}."
-        body += " Want me to turn this into a ready-to-send draft?"
-        cta_text = "Want me to draft it now?"
+        body += " Pick 1 for short version, or 2 for detailed version."
+        body += " Reply 1 or 2 and I’ll send it ready-to-use."
+        cta_text = "Reply 1 or 2."
         template_params = [salutation, truncate(body, 120), cta_text]
 
     elif kind == "milestone_reached":
@@ -1112,7 +1149,7 @@ def build_first_touch(
     if language_mix and customer is None and category_slug in {"salons", "restaurants", "gyms", "pharmacies"}:
         body = hinglish_phrase(body, True)
 
-    body = truncate(body, 420)
+    body = enforce_first_touch_quality(body, kind, scope, merchant, category, trigger)
     info_only = kind in {"milestone_reached"}
     return ComposedMessage(
         body=body,
