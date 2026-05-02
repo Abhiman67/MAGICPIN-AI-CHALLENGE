@@ -806,6 +806,64 @@ def has_numeric_anchor(text: str) -> bool:
     return bool(re.search(r"\d", text)) or "%" in text or "₹" in text
 
 
+def trigger_family(kind: str) -> str:
+    if kind.startswith("profile_") or kind in {"seo_visibility_gap"}:
+        return "profile"
+    if kind.startswith("review_"):
+        return "review"
+    if kind.startswith("lead_"):
+        return "lead"
+    if kind in {"active_planning_intent"}:
+        return "planning"
+    if kind.startswith("perf_") or kind in {"seasonal_perf_dip"}:
+        return "perf"
+    return "general"
+
+
+def context_anchor_line(merchant: dict[str, Any], trigger: dict[str, Any]) -> str:
+    locality = merchant_locality(merchant) or merchant_city(merchant)
+    offer = active_offer(merchant)
+    offer_name = offer.get("title") if offer else None
+    trigger_label = trigger_kind(trigger).replace("_", " ")
+    if locality and offer_name:
+        return f"Context: {locality}; live offer {offer_name}; trigger {trigger_label}."
+    if locality:
+        return f"Context: {locality}; trigger {trigger_label}."
+    return f"Context: trigger {trigger_label}."
+
+
+def enforce_single_decision(body: str) -> str:
+    text = body
+    choices = [
+        "Reply 1 or 2.",
+        "Reply DRAFT.",
+        "Reply PLAN.",
+        "Reply CHECKLIST.",
+        "Reply PACK.",
+        "Reply SEND.",
+        "Reply GO.",
+    ]
+    matches = [c for c in choices if c in text]
+    if len(matches) <= 1:
+        return text
+    keep = matches[0]
+    for m in matches[1:]:
+        text = text.replace(m, "")
+    return re.sub(r"\s+", " ", text).strip() + " " + keep
+
+
+def action_token_for_family(family: str) -> str:
+    mapping = {
+        "profile": "CHECKLIST",
+        "review": "DRAFT",
+        "lead": "PLAN",
+        "planning": "GO",
+        "perf": "DRAFT",
+        "general": "DRAFT",
+    }
+    return mapping.get(family, "DRAFT")
+
+
 def enforce_first_touch_quality(
     body: str,
     kind: str,
@@ -816,23 +874,38 @@ def enforce_first_touch_quality(
 ) -> str:
     """Deterministic quality guardrail for first-touch content."""
     hardened = body
+    family = trigger_family(kind)
     specificity = trigger_specificity_line(kind, merchant, category, trigger)
+    context_anchor = context_anchor_line(merchant, trigger)
     action_line = trigger_action_line(kind, merchant, trigger)
     action_needed = scope != "customer" and kind not in {"milestone_reached"}
 
+    # Anchor 1: numeric/metric evidence.
     if not has_numeric_anchor(hardened) and specificity:
         hardened += f" {specificity}"
+    # Anchor 2: context evidence (locality/offer/trigger).
+    if "Context:" not in hardened:
+        hardened += f" {context_anchor}"
     if action_needed:
         normalized = normalize(hardened)
-        if "reply " not in normalized and "want me to" in normalized and action_line:
+        if "reply " not in normalized and action_line:
             hardened += f" {action_line}"
-        elif "reply " not in normalized and action_line:
-            hardened += f" {action_line}"
+        token = action_token_for_family(family)
+        if "reply " not in normalized and token:
+            hardened += f" Reply {token}."
 
     if "quick update from vera." in normalize(hardened):
         hardened = hardened.replace("quick update from Vera.", "here is the highest-impact update for today.")
 
-    return truncate(hardened, 420)
+    # Family shape constraints: short, action-forward, and single decision.
+    family_max_len = {"profile": 360, "review": 360, "lead": 360, "planning": 340, "perf": 360, "general": 380}
+    hardened = enforce_single_decision(hardened)
+
+    # Avoid mixed asks after explicit choices.
+    if "Reply 1 or 2." in hardened:
+        hardened = hardened.replace("Want me to", "I can")
+
+    return truncate(hardened, family_max_len.get(family, 380))
 
 
 def build_first_touch(

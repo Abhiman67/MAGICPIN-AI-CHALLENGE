@@ -78,6 +78,7 @@ Use contract tests, the judge simulator, or hit endpoints directly.
 ```bash
 ./scripts/run_local_checks.sh
 ./scripts/run_p0.sh
+./scripts/run_score_loop.sh
 ```
 
 Example:
@@ -97,6 +98,26 @@ curl http://localhost:8080/v1/metrics
 - If `BOT_DB_PATH` is set, state is persisted and restored on restart.
 - `POST /v1/teardown` clears all stored state if the judge calls it.
 - `GET /v1/metrics` exposes counters for actions, replies, suppression hits, and rate-limited requests.
+
+## Score optimization workflow
+
+Use the score loop runner for deterministic evaluation artifacts:
+
+```bash
+export JUDGE_BOT_URL='https://<your-bot-url>'
+export JUDGE_LLM_PROVIDER='openrouter'
+export JUDGE_LLM_API_KEY='<your-key>'
+export JUDGE_LLM_MODEL='openai/gpt-4o-mini'
+./scripts/run_score_loop.sh
+```
+
+What it does:
+
+- Calls `/v1/teardown` and verifies clean readiness state before scoring
+- Runs `full_evaluation`
+- Saves timestamped report to `reports/run_<timestamp>.txt`
+- Validates report completeness (fails on incomplete runs, e.g. `0 actions`)
+- Writes structured summary metrics JSON to `reports/run_<timestamp>.json`
 
 ## What’s covered from the challenge spec
 

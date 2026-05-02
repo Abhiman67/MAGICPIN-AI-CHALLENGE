@@ -63,6 +63,10 @@ Active optimization plan (in progress):
   - redeploy
   - run `full_evaluation`
   - track per-dimension deltas vs baseline `34/50`
+- Completed foundation for rapid loops:
+  - `scripts/run_score_loop.sh` clean-state + timestamped report pipeline
+  - `scripts/judge_report_tools.py` report validator + structured score diagnostics
+  - quality-policy unit tests in `tests/test_quality_policy.py`
 
 ---
 
