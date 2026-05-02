@@ -864,6 +864,24 @@ def action_token_for_family(family: str) -> str:
     return mapping.get(family, "DRAFT")
 
 
+def profile_perf_variant_key(merchant: dict[str, Any], trigger: dict[str, Any]) -> int:
+    seed = f"{merchant.get('merchant_id','m')}::{trigger.get('id','t')}::{trigger_kind(trigger)}"
+    return sum(ord(ch) for ch in seed) % 3
+
+
+def estimate_missed_leads(merchant: dict[str, Any]) -> int | None:
+    delta = safe_get(merchant, "performance", "delta_7d", default={}) or {}
+    calls_pct = delta.get("calls_pct")
+    calls_now = merchant_calls(merchant)
+    if not isinstance(calls_pct, (int, float)) or calls_pct >= 0:
+        return None
+    if not isinstance(calls_now, (int, float)) or calls_now <= 0:
+        return None
+    prev_calls = calls_now / max(0.01, 1.0 + calls_pct)
+    missed = max(0, round(prev_calls - calls_now))
+    return int(missed) if missed > 0 else None
+
+
 def enforce_first_touch_quality(
     body: str,
     kind: str,
@@ -1023,38 +1041,54 @@ def build_first_touch(
         delta_7d = safe_get(merchant, "performance", "delta_7d", default={}) or {}
         views_pct = delta_7d.get("views_pct")
         calls_pct = delta_7d.get("calls_pct")
-        body = f"{salutation}, your {merchant_locality(merchant) or 'local'} profile needs a quick look."
-        if views_pct is not None:
-            body += f" Views moved {views_pct:+.0%} this week"
-        if calls_pct is not None:
-            body += f" and calls moved {calls_pct:+.0%}."
+        locality_label = merchant_locality(merchant) or merchant_city(merchant) or "local"
+        variant = profile_perf_variant_key(merchant, trigger)
+        openers = [
+            f"{salutation}, your {locality_label} listing is slipping this week.",
+            f"{salutation}, quick performance alert for your {locality_label} profile.",
+            f"{salutation}, we should patch your {locality_label} listing today.",
+        ]
+        body = openers[variant]
+        metric_parts: list[str] = []
+        if isinstance(views_pct, (int, float)):
+            metric_parts.append(f"views {views_pct:+.0%}")
+        if isinstance(calls_pct, (int, float)):
+            metric_parts.append(f"calls {calls_pct:+.0%}")
+        if metric_parts:
+            body += " Signal: " + ", ".join(metric_parts) + "."
         if ctr is not None and peer_ctr is not None:
-            body += f" CTR is {ctr:.1%} vs peer {peer_ctr:.1%}."
+            body += f" CTR: {ctr:.1%} vs peer {peer_ctr:.1%}."
+        missed = estimate_missed_leads(merchant)
+        if missed is not None:
+            body += f" Estimated impact: ~{missed} missed call-leads this week."
         if offer:
-            body += f" Your active offer is {offer.get('title')}."
+            body += f" Best offer to push now: {offer.get('title')}."
         if signal_line:
             body += f" {signal_line}."
-        body += f" Last touch status: {history_line}."
+        body += f" Last touch: {history_line}."
         lever = persuasion_line(kind, merchant, trigger)
         if lever:
             body += f" {lever}"
-        body += " Want me to draft a tighter post and a 1-line reply you can reuse?"
-        cta_text = "Want me to draft the fix?"
+        body += " Reply 1 for a quick 3-bullet patch, or 2 for a 7-day recovery plan."
+        body += " I’ll send it ready to post."
+        cta_text = "Reply 1 or 2."
         template_params = [salutation, truncate(body, 120), cta_text]
 
     elif kind == "perf_spike":
         delta_7d = safe_get(merchant, "performance", "delta_7d", default={}) or {}
         views_pct = delta_7d.get("views_pct")
         calls_pct = delta_7d.get("calls_pct")
-        body = f"{salutation}, you have momentum right now."
+        locality_label = merchant_locality(merchant) or merchant_city(merchant) or "local"
+        body = f"{salutation}, your {locality_label} listing has momentum right now."
         if views_pct is not None:
             body += f" Views are up {views_pct:+.0%} this week."
         if calls_pct is not None:
             body += f" Calls are up {calls_pct:+.0%}."
         if offer:
             body += f" Your active offer {offer.get('title')} is a good candidate to push."
-        body += " Want me to turn this into a post while the spike is live?"
-        cta_text = "Want me to turn it into a post?"
+        body += " Reply 1 for a conversion post, or 2 for a retention post."
+        body += " I’ll send copy in 3 bullets."
+        cta_text = "Reply 1 or 2."
         template_params = [salutation, truncate(body, 120), cta_text]
 
     elif kind == "renewal_due":
@@ -1202,13 +1236,14 @@ def build_first_touch(
         template_params = [salutation, truncate(body, 120), cta_text]
 
     else:
-        body = f"{salutation}, quick update from Vera."
+        locality_label = merchant_locality(merchant) or merchant_city(merchant) or "your listing"
+        body = f"{salutation}, here is today’s highest-impact move for {locality_label}."
         if ctr is not None and peer_ctr is not None:
-            body += f" Your CTR is {ctr:.1%} vs peer {peer_ctr:.1%}."
+            body += f" CTR: {ctr:.1%} vs peer {peer_ctr:.1%}."
         if offer:
             body += f" Your active offer is {offer.get('title')}."
-        body += " Want me to draft the next step?"
-        cta_text = "Want me to draft the next step?"
+        body += " Reply DRAFT and I’ll send the next step in 2 lines."
+        cta_text = "Reply DRAFT."
         template_params = [salutation, truncate(body, 120), cta_text]
 
     specificity_line = trigger_specificity_line(kind, merchant, category, trigger)
