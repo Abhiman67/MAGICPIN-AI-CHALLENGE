@@ -852,6 +852,22 @@ def enforce_single_decision(body: str) -> str:
     return re.sub(r"\s+", " ", text).strip() + " " + keep
 
 
+def force_tail_cta(body: str, cta: str, max_len: int) -> str:
+    """Guarantee a single clear CTA survives truncation by pinning it at tail."""
+    cleaned = re.sub(r"\s+", " ", body).strip()
+    cta = cta.strip()
+    if not cta:
+        return truncate(cleaned, max_len)
+    # Remove duplicate CTA occurrences first.
+    cleaned = cleaned.replace(cta, "").strip()
+    suffix = f" {cta}"
+    keep_len = max(0, max_len - len(suffix))
+    head = truncate(cleaned, keep_len).rstrip(". ").strip()
+    if not head:
+        return truncate(cta, max_len)
+    return f"{head}.{suffix}"
+
+
 def action_token_for_family(family: str) -> str:
     mapping = {
         "profile": "CHECKLIST",
@@ -904,6 +920,7 @@ def enforce_first_touch_quality(
     # Anchor 2: context evidence (locality/offer/trigger).
     if "Context:" not in hardened:
         hardened += f" {context_anchor}"
+    required_cta = ""
     if action_needed:
         normalized = normalize(hardened)
         if "reply " not in normalized and action_line:
@@ -911,9 +928,19 @@ def enforce_first_touch_quality(
         token = action_token_for_family(family)
         if "reply " not in normalized and token:
             hardened += f" Reply {token}."
+        if family in {"profile", "perf", "lead", "planning", "review"}:
+            required_cta = "Reply 1 or 2."
+        elif token:
+            required_cta = f"Reply {token}."
 
-    if "quick update from vera." in normalize(hardened):
-        hardened = hardened.replace("quick update from Vera.", "here is the highest-impact update for today.")
+    # Robust anti-generic rewrite.
+    if "quick update from vera" in normalize(hardened):
+        hardened = re.sub(
+            r"quick update from vera\.?",
+            "here is today’s highest-impact move",
+            hardened,
+            flags=re.IGNORECASE,
+        )
 
     # Family shape constraints: short, action-forward, and single decision.
     family_max_len = {"profile": 360, "review": 360, "lead": 360, "planning": 340, "perf": 360, "general": 380}
@@ -923,7 +950,10 @@ def enforce_first_touch_quality(
     if "Reply 1 or 2." in hardened:
         hardened = hardened.replace("Want me to", "I can")
 
-    return truncate(hardened, family_max_len.get(family, 380))
+    max_len = family_max_len.get(family, 380)
+    if required_cta:
+        return force_tail_cta(hardened, required_cta, max_len)
+    return truncate(hardened, max_len)
 
 
 def build_first_touch(

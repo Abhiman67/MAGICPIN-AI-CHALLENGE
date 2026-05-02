@@ -48,7 +48,7 @@ P0 local checks are completed via `./scripts/run_p0.sh`:
 
 Remaining quality step:
 
-- Re-run `full_evaluation` and capture updated score delta after this pass
+- Re-run `full_evaluation` and capture updated score delta after each perf/profile patch
 
 Active optimization plan (in progress):
 
@@ -62,11 +62,17 @@ Active optimization plan (in progress):
   - run tests
   - redeploy
   - run `full_evaluation`
-  - track per-dimension deltas vs baseline `34/50`
+  - track per-dimension deltas vs latest baseline `35/50 (70%)`
 - Completed foundation for rapid loops:
   - `scripts/run_score_loop.sh` clean-state + timestamped report pipeline
   - `scripts/judge_report_tools.py` report validator + structured score diagnostics
   - quality-policy unit tests in `tests/test_quality_policy.py`
+
+Current priority within optimization:
+
+- Lift `profile_perf` family (current lowest)
+- Remove remaining weak `quick update from Vera` variants in perf/profile rows
+- Raise decision quality and engagement while preserving merchant/category fit
 
 ---
 

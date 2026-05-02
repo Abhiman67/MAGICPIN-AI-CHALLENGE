@@ -122,14 +122,18 @@ All remaining items are now enhancement-level, not blocker-level for a working c
   - deterministic concrete action lines per trigger family (`DRAFT` / `PLAN` / `CHECKLIST` / `PACK` / `SEND` / `GO`)
   - stronger immediate-next-step framing in first-touch messages
 
-Current measured quality baseline from external run:
+Current measured quality baseline from latest external runs:
 
-- Overall: `34/50 (68%)`
-- Specificity: `7/10`
-- Category fit: `8/10`
-- Merchant fit: `7/10`
-- Decision quality: `6/10`
-- Engagement: `6/10`
+- Overall: `35/50 (70%)`
+- Specificity: `~7/10`
+- Category fit: `~8/10`
+- Merchant fit: `~8/10`
+- Decision quality: `~6/10`
+- Engagement: `~6-7/10`
+
+Current weakest family from score diagnostics:
+
+- `profile_perf` (lowest family average in `reports/run_*.json`)
 
 Planned next optimization sprint (to target ~`38-40/50`):
 

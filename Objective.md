@@ -31,7 +31,7 @@ It currently provides:
 ### Engineering Validation Metrics
 
 - Local automated checks: passing
-- Integration test suite: `8/8` tests passing
+- Integration test suite: `12/12` tests passing
 - Offline judge harness run: passing (`all` + `full_evaluation` in `mock` mode)
 - Public deployment checks: passing (`healthz`, `metadata`, readiness lifecycle)
 - Online LLM judge run: passing (`all`) and scored (`full_evaluation`)
@@ -67,9 +67,9 @@ Status: **Complete for submission baseline**
 Status: **Medium-High**
 
 - P1 quality pass is completed (copy, persuasion framing, CTA policy, personalization depth, multilingual handling, negative-case handling).
-- Latest external scored run in [`judge-report.txt`](/Users/abhishek/Downloads/magicpin-ai-challenge/judge-report.txt): **33/50 (66%)**.
+- Latest external scored run in [`judge-report.txt`](/Users/abhishek/Downloads/magicpin-ai-challenge/judge-report.txt): **35/50 (70%)**.
 - Remaining is score maximization/tuning, especially:
-  - specificity
+  - profile/perf-family consistency
   - decision quality
   - engagement
 

@@ -66,6 +66,7 @@ class QualityPolicyTests(unittest.TestCase):
         )
         count = sum(1 for token in ["Reply 1 or 2.", "Reply DRAFT.", "Reply PLAN.", "Reply CHECKLIST.", "Reply PACK.", "Reply SEND.", "Reply GO."] if token in msg.body)
         self.assertLessEqual(count, 1)
+        self.assertIn("Reply 1 or 2.", msg.body)
 
     def test_avoids_generic_opening(self) -> None:
         msg = bot.build_first_touch(
@@ -75,7 +76,19 @@ class QualityPolicyTests(unittest.TestCase):
         )
         self.assertNotIn("quick update from Vera", msg.body)
 
+    def test_tail_cta_survives_truncation(self) -> None:
+        msg = bot.build_first_touch(
+            sample_category(),
+            sample_merchant(),
+            {
+                "id": "t5",
+                "kind": "perf_dip",
+                "scope": "merchant",
+                "payload": {"category": "salons"},
+            },
+        )
+        self.assertTrue(msg.body.strip().endswith("Reply 1 or 2."))
+
 
 if __name__ == "__main__":
     unittest.main()
-
