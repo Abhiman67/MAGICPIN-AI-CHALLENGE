@@ -71,6 +71,29 @@ docker build -t vera-bot .
 docker run --rm -p 8080:8080 vera-bot
 ```
 
+## Frontend
+
+A static dashboard is available at [`frontend/index.html`](frontend/index.html).
+
+To run it locally:
+
+```bash
+python3 -m http.server 4173 -d frontend
+```
+
+Then open `http://localhost:4173` in your browser.
+
+The dashboard can talk to either:
+
+- `http://localhost:8080` for a local bot
+- `https://magicpin-ai-challenge-production.up.railway.app` for the deployed bot
+
+If you point it at a browser-based origin, the bot now includes CORS headers so the UI can call the API directly.
+
+When the frontend is hosted outside localhost, it automatically defaults to the deployed Railway bot URL on first load. Local development still prefers `http://127.0.0.1:8080`, and the URL field can be overridden manually if needed.
+
+To deploy the frontend, host the static `frontend/` directory on any static site provider such as GitHub Pages, Netlify, Vercel, or Railway static hosting. No build step is required.
+
 ## Test it
 
 Use contract tests, the judge simulator, or hit endpoints directly.

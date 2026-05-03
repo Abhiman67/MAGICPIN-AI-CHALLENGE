@@ -1,0 +1,55 @@
+{
+  "average_score": 35,
+  "average_percent": 70,
+  "metric_averages": {
+    "specificity": 7.16,
+    "category_fit": 8.32,
+    "merchant_fit": 8.04,
+    "decision_quality": 6.48,
+    "engagement": 6.6,
+    "total": 36.6
+  },
+  "family_average_total": {
+    "profile_perf": 35.21,
+    "review": 37.5,
+    "other": 38.33,
+    "planning": 39
+  },
+  "bottom_5_messages": [
+    {
+      "total": 31,
+      "specificity": 5,
+      "decision_quality": 5,
+      "engagement": 7,
+      "message": "Ramesh, quick update from Vera. Your CTR is 4.5% v..."
+    },
+    {
+      "total": 32,
+      "specificity": 6,
+      "decision_quality": 5,
+      "engagement": 6,
+      "message": "Dr. Meera, quick update from Vera. Your CTR is 2.1..."
+    },
+    {
+      "total": 32,
+      "specificity": 6,
+      "decision_quality": 5,
+      "engagement": 6,
+      "message": "Anjali, quick update from Vera. Your CTR is 2.2% v..."
+    },
+    {
+      "total": 32,
+      "specificity": 6,
+      "decision_quality": 5,
+      "engagement": 6,
+      "message": "Lakshmi, quick update from Vera. Your CTR is 4.8% ..."
+    },
+    {
+      "total": 32,
+      "specificity": 6,
+      "decision_quality": 5,
+      "engagement": 6,
+      "message": "Karthik, quick update from Vera. Your CTR is 5.2% ..."
+    }
+  ]
+}

@@ -568,21 +568,21 @@ def trigger_action_line(kind: str, merchant: dict[str, Any], trigger: dict[str, 
     offer = active_offer(merchant)
     if kind in {"perf_dip", "seasonal_perf_dip", "perf_spike", "festival_upcoming", "ipl_match_today", "local_news_event"}:
         offer_title = offer.get("title") if offer else "your top offer"
-        return f"If you reply DRAFT, I’ll send 1 post + 1 reply script for {offer_title}."
+        return f"Reply DRAFT and I’ll send 1 post + 1 reply script for {offer_title}."
     if kind in {"review_sentiment_alert", "review_response_draft", "review_theme_emerged"}:
-        return "If you reply DRAFT, I’ll send 3 response templates by tone: apology, neutral, and assertive."
+        return "Reply DRAFT and I’ll send 3 response templates by tone: apology, neutral, and assertive."
     if kind in {"profile_incomplete", "profile_hours_missing", "profile_attributes_missing", "seo_visibility_gap"}:
-        return "If you reply CHECKLIST, I’ll send the exact update order in 5 steps."
+        return "Reply CHECKLIST and I’ll send the exact update order in 5 steps."
     if kind in {"lead_missed_searches", "lead_followup_due"}:
-        return "If you reply PLAN, I’ll send a 7-day lead-capture plan with daily actions."
+        return "Reply PLAN and I’ll send a 7-day lead-capture plan with daily actions."
     if kind in {"photo_gap_detected", "content_pack_ready"}:
-        return "If you reply PACK, I’ll send shot list + caption pack for this week."
+        return "Reply PACK and I’ll send shot list + caption pack for this week."
     if kind in {"renewal_due"}:
-        return "If you reply SEND, I’ll draft the renewal CTA for one-tap approval."
+        return "Reply SEND and I’ll draft the renewal CTA for one-tap approval."
     if kind in {"active_planning_intent"}:
         topic = trigger_payload(trigger).get("intent_topic") or "this plan"
-        return f"If you reply GO, I’ll send a ready-to-send draft for {topic}."
-    return "If useful, reply DRAFT and I’ll prepare the exact next message."
+        return f"Reply GO and I’ll send a ready-to-send draft for {topic}."
+    return "Reply DRAFT and I’ll prepare the exact next message."
 
 
 def category_digest_item(category: dict[str, Any], trigger: dict[str, Any]) -> dict[str, Any] | None:
@@ -880,6 +880,22 @@ def action_token_for_family(family: str) -> str:
     return mapping.get(family, "DRAFT")
 
 
+def decision_closer(kind: str, family: str, customer: dict[str, Any] | None = None) -> str:
+    if family == "profile":
+        return "Reply CHECKLIST and I’ll send the 3 fixes in priority order."
+    if family == "review":
+        return "Reply DRAFT and I’ll turn it into a ready response."
+    if family == "lead":
+        return "Reply PLAN and I’ll map the next 2 steps."
+    if family == "planning":
+        return "Reply GO and I’ll turn it into the next action."
+    if family == "perf":
+        return "Reply DRAFT and I’ll give you the one best move."
+    if kind in {"recall_due", "customer_lapsed_soft", "appointment_tomorrow", "trial_followup", "chronic_refill_due"} and customer:
+        return f"Reply YES and I’ll send the note to {customer_salutation(customer)}."
+    return "Reply DRAFT for the ready version, or SUMMARY for the short version."
+
+
 def profile_perf_variant_key(merchant: dict[str, Any], trigger: dict[str, Any]) -> int:
     seed = f"{merchant.get('merchant_id','m')}::{trigger.get('id','t')}::{trigger_kind(trigger)}"
     return sum(ord(ch) for ch in seed) % 3
@@ -928,6 +944,8 @@ def enforce_first_touch_quality(
         token = action_token_for_family(family)
         if "reply " not in normalized and token:
             hardened += f" Reply {token}."
+        if "reply " not in normalized:
+            hardened += f" {decision_closer(kind, family)}"
         if family in {"profile", "perf", "lead", "planning", "review"}:
             required_cta = "Reply 1 or 2."
         elif token:
@@ -1050,7 +1068,9 @@ def build_first_touch(
             body += " Your next check-in is due."
 
         if slot_labels:
-            body += " Available slots: " + " / ".join(slot_labels[:2]) + "."
+            clean_slots = [str(label) for label in slot_labels[:2] if label]
+            if clean_slots:
+                body += " Available slots: " + " / ".join(clean_slots) + "."
         if offer_title:
             body += f" {offer_title}."
         if kind == "trial_followup":
@@ -1074,8 +1094,8 @@ def build_first_touch(
         locality_label = merchant_locality(merchant) or merchant_city(merchant) or "local"
         variant = profile_perf_variant_key(merchant, trigger)
         openers = [
-            f"{salutation}, your {locality_label} listing is slipping this week.",
-            f"{salutation}, quick performance alert for your {locality_label} profile.",
+            f"{salutation}, your {locality_label} listing needs a recovery move this week.",
+            f"{salutation}, quick recovery check for your {locality_label} profile.",
             f"{salutation}, we should patch your {locality_label} listing today.",
         ]
         body = openers[variant]
@@ -1099,9 +1119,9 @@ def build_first_touch(
         lever = persuasion_line(kind, merchant, trigger)
         if lever:
             body += f" {lever}"
-        body += " Reply 1 for a quick 3-bullet patch, or 2 for a 7-day recovery plan."
-        body += " I’ll send it ready to post."
-        cta_text = "Reply 1 or 2."
+        body += " Reply CHECKLIST and I’ll send the 3 fixes in priority order."
+        body += " I’ll keep it ready to post."
+        cta_text = "Reply CHECKLIST."
         template_params = [salutation, truncate(body, 120), cta_text]
 
     elif kind == "perf_spike":
@@ -1116,9 +1136,9 @@ def build_first_touch(
             body += f" Calls are up {calls_pct:+.0%}."
         if offer:
             body += f" Your active offer {offer.get('title')} is a good candidate to push."
-        body += " Reply 1 for a conversion post, or 2 for a retention post."
-        body += " I’ll send copy in 3 bullets."
-        cta_text = "Reply 1 or 2."
+        body += " Reply DRAFT and I’ll send a conversion post plus a retention version."
+        body += " I’ll keep the copy in 3 bullets."
+        cta_text = "Reply DRAFT."
         template_params = [salutation, truncate(body, 120), cta_text]
 
     elif kind == "renewal_due":
@@ -1209,9 +1229,9 @@ def build_first_touch(
         lever = persuasion_line(kind, merchant, trigger)
         if lever:
             body += f" {lever}"
-        body += " Pick 1 for top-3 quick fixes, or 2 for full checklist."
-        body += " Reply 1 or 2."
-        cta_text = "Reply 1 or 2."
+        body += " Reply CHECKLIST and I’ll send the top 3 fixes in priority order."
+        body += " I’ll keep it practical and short."
+        cta_text = "Reply CHECKLIST."
         template_params = [salutation, truncate(body, 120), cta_text]
 
     elif kind in {"lead_missed_searches", "lead_followup_due"}:
@@ -1224,9 +1244,9 @@ def build_first_touch(
         lever = persuasion_line(kind, merchant, trigger)
         if lever:
             body += f" {lever}"
-        body += " Pick 1 for quick 3-step patch, or 2 for full 7-day plan."
-        body += " Reply 1 or 2."
-        cta_text = "Reply 1 or 2."
+        body += " Reply PLAN and I’ll send the 7-day lead-capture plan with day 1 first."
+        body += " I’ll keep it execution-ready."
+        cta_text = "Reply PLAN."
         template_params = [salutation, truncate(body, 120), cta_text]
 
     elif kind in {"photo_gap_detected", "content_pack_ready"}:
@@ -1444,7 +1464,7 @@ def compose_follow_up(
             body = f"Done — here’s a draft for {topic}."
             if offer:
                 body += f" I anchored it to {offer.get('title')}."
-            body += " Want me to make it shorter and more WhatsApp-friendly?"
+            body += " Reply GO and I’ll shorten it, or DRAFT if you want the full version."
             return {
                 "action": "send",
                 "body": body,
@@ -1502,7 +1522,7 @@ def compose_follow_up(
         peer_ctr = category_peer_ctr(STATE.get_category(category_slug) or {})
         if ctr is not None and peer_ctr is not None:
             body += f" CTR is {ctr:.1%} vs peer {peer_ctr:.1%}."
-        body += " Want me to keep going with the highest-impact next step?"
+        body += f" {decision_closer(kind, trigger_family(kind))}"
         if language_mix:
             body = body.replace("Want me to", "Chahiye to main")
         return {
@@ -1519,7 +1539,7 @@ def compose_follow_up(
     elif kind in {"recall_due", "appointment_tomorrow"} and customer:
         body += f" Want me to send the note to {customer_salutation(customer)} now?"
     else:
-        body += " Want the draft or the summary first?"
+        body += f" {decision_closer(kind, trigger_family(kind), customer)}"
     if language_mix:
         body = body.replace("Want", "Chahiye")
     return {
@@ -1549,7 +1569,8 @@ def merchant_and_category_for_trigger(trigger: dict[str, Any]) -> tuple[dict[str
     category = STATE.get_category(category_slug) if category_slug else None
     if not category:
         # Fallback to any category listed in the trigger payload.
-        category = STATE.get_category(trigger_payload(trigger).get("category")) if trigger_payload(trigger).get("category") else None
+        fallback_category = trigger_payload(trigger).get("category")
+        category = STATE.get_category(str(fallback_category)) if fallback_category else None
     return merchant, category
 
 
@@ -1573,7 +1594,7 @@ def build_tick_actions(now: str, active_trigger_ids: list[str]) -> list[dict[str
         STATE.record_conversation(conversation_id, merchant.get("merchant_id", "merchant"), customer_id, trigger.get("id"), "merchant_on_behalf" if customer else "vera")
         composed = build_first_touch(category, merchant, trigger, customer)
         composed.suppression_key = suppression_key
-        action = composed.to_action(conversation_id, merchant.get("merchant_id", "merchant"), customer_id, trigger.get("id"))
+        action = composed.to_action(conversation_id, merchant.get("merchant_id", "merchant"), customer_id, str(trigger.get("id", "trigger")))
         actions.append(action)
         STATE.append_bot_message(conversation_id, composed.body)
         if len(actions) >= 20:
@@ -1586,12 +1607,20 @@ class VeraRequestHandler(BaseHTTPRequestHandler):
     _rate_lock = threading.Lock()
     _rate_buckets: dict[str, dict[str, float]] = {}
 
+    def _set_cors_headers(self) -> None:
+        origin = self.headers.get("Origin") or "*"
+        self.send_header("Access-Control-Allow-Origin", origin)
+        self.send_header("Vary", "Origin")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+
     def _send_json(self, status: int, payload: dict[str, Any]) -> None:
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
+        self._set_cors_headers()
         self.end_headers()
         self.wfile.write(body)
         log_event(
@@ -1641,6 +1670,16 @@ class VeraRequestHandler(BaseHTTPRequestHandler):
 
     def _not_found(self) -> None:
         self._send_json(404, {"error": "not_found"})
+
+    def do_OPTIONS(self) -> None:  # noqa: N802
+        if self._rate_limited():
+            STATE.incr("rate_limited_total")
+            self._send_json(429, {"error": "rate_limited", "details": "too_many_requests"})
+            return
+        self.send_response(204)
+        self._set_cors_headers()
+        self.send_header("Content-Length", "0")
+        self.end_headers()
 
     def do_GET(self) -> None:  # noqa: N802
         if self._rate_limited():

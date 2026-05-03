@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light" />
+  <title>Vera Control Room</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+    :root {
+      --bg: #f5efe7;
+      --bg-2: #efe3d7;
+      --card: rgba(255, 255, 255, 0.72);
+      --card-border: rgba(28, 27, 24, 0.1);
+      --text: #1f1a17;
+      --muted: #6c625a;
+      --accent: #0f766e;
+      --accent-2: #ea580c;
+      --accent-3: #7c3aed;
+      --good: #0f9d58;
+      --warn: #c2410c;
+      --bad: #b91c1c;
+      --shadow: 0 24px 80px rgba(40, 30, 20, 0.18);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(234, 88, 12, 0.18), transparent 32%),
+        radial-gradient(circle at top right, rgba(15, 118, 110, 0.16), transparent 28%),
+        linear-gradient(180deg, var(--bg), var(--bg-2));
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px);
+      background-size: 36px 36px;
+      opacity: 0.45;
+      mask-image: radial-gradient(circle at center, black 60%, transparent 100%);
+    }
+
+    .shell {
+      position: relative;
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.3fr 0.7fr;
+      gap: 20px;
+      align-items: stretch;
+      margin-bottom: 20px;
+    }
+
+    .hero-card,
+    .panel,
+    .stat,
+    .pill,
+    .console,
+    textarea,
+    input,
+    select,
+    button {
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .hero-card {
+      border-radius: calc(var(--radius) + 10px);
+      background: linear-gradient(145deg, rgba(255,255,255,0.88), rgba(255,255,255,0.64));
+      padding: 28px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-card::after {
+      content: '';
+      position: absolute;
+      right: -70px;
+      top: -70px;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(15,118,110,0.18), transparent 68%);
+      transform: rotate(12deg);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .eyebrow .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 0 0 6px rgba(15, 118, 110, 0.12);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 6vw, 64px);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      max-width: 11ch;
+    }
+
+    .hero-copy {
+      max-width: 64ch;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.7;
+      margin: 16px 0 0;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.72);
+      border-radius: 999px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .pill strong { font-family: 'IBM Plex Mono', monospace; font-size: 12px; }
+
+    .side-stack {
+      display: grid;
+      gap: 20px;
+    }
+
+    .status-card {
+      border-radius: calc(var(--radius) + 10px);
+      background: linear-gradient(160deg, rgba(15, 118, 110, 0.14), rgba(124, 58, 237, 0.12));
+      padding: 24px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .status-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .status-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(31, 26, 23, 0.72);
+    }
+
+    .status-value {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      background: rgba(255,255,255,0.8);
+    }
+
+    .badge::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--muted);
+    }
+
+    .badge.good::before { background: var(--good); }
+    .badge.warn::before { background: var(--warn); }
+    .badge.bad::before { background: var(--bad); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 20px;
+    }
+
+    .panel {
+      border-radius: var(--radius);
+      background: var(--card);
+      padding: 22px;
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 20px;
+      letter-spacing: -0.03em;
+    }
+
+    .panel p.sub {
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .controls {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.84);
+      color: var(--text);
+      border-radius: 16px;
+      padding: 14px 16px;
+      font: inherit;
+      outline: none;
+      transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+      box-shadow: none;
+    }
+
+    textarea {
+      min-height: 170px;
+      resize: vertical;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(15, 118, 110, 0.42);
+      box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font: inherit;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      transition: transform 150ms ease, opacity 150ms ease, box-shadow 150ms ease;
+      box-shadow: 0 16px 36px rgba(15, 118, 110, 0.24);
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(1px); }
+    button.primary { background: linear-gradient(135deg, var(--accent), #115e59); }
+    button.secondary { background: linear-gradient(135deg, #4c1d95, var(--accent-3)); }
+    button.ghost {
+      color: var(--text);
+      background: rgba(255,255,255,0.78);
+      box-shadow: none;
+      border: 1px solid rgba(31, 26, 23, 0.1);
+    }
+
+    .panel .toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .toolbar .hint {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .stat {
+      border-radius: 20px;
+      background: rgba(255,255,255,0.8);
+      padding: 16px;
+    }
+
+    .stat .kicker {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+    }
+
+    .stat .value {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+    }
+
+    .stat .note {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .console {
+      border-radius: 20px;
+      background: #111827;
+      color: #e5e7eb;
+      overflow: hidden;
+    }
+
+    .console-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    pre {
+      margin: 0;
+      padding: 16px;
+      overflow: auto;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      max-height: 320px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .span-6 { grid-column: span 6; }
+    .span-7 { grid-column: span 7; }
+    .span-5 { grid-column: span 5; }
+    .span-12 { grid-column: span 12; }
+
+    .status-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .mono {
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .small {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .divider {
+      height: 1px;
+      margin: 16px 0;
+      background: rgba(31, 26, 23, 0.08);
+    }
+
+    .footer {
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .result-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .result-row {
+      display: flex;
+      width: 100%;
+    }
+
+    .result-row.left {
+      justify-content: flex-start;
+    }
+
+    .result-row.right {
+      justify-content: flex-end;
+    }
+
+    .result-item {
+      width: min(100%, 560px);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.8);
+      border: 1px solid rgba(31, 26, 23, 0.08);
+      padding: 14px 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .result-item.context,
+    .result-item.status {
+      background: rgba(15, 118, 110, 0.08);
+      border-color: rgba(15, 118, 110, 0.14);
+    }
+
+    .result-item.tick {
+      background: rgba(15, 118, 110, 0.12);
+      border-color: rgba(15, 118, 110, 0.18);
+    }
+
+    .result-item.reply {
+      background: rgba(124, 58, 237, 0.1);
+      border-color: rgba(124, 58, 237, 0.18);
+    }
+
+    .result-item.error {
+      background: rgba(185, 28, 28, 0.08);
+      border-color: rgba(185, 28, 28, 0.16);
+    }
+
+    .result-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .result-title {
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .result-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+      margin-top: 4px;
+    }
+
+    .result-meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    .result-body {
+      border-radius: 14px;
+      background: rgba(17, 24, 39, 0.05);
+      padding: 12px 14px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .result-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: rgba(15, 118, 110, 0.08);
+      color: #14532d;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tag.gray {
+      background: rgba(31, 26, 23, 0.07);
+      color: var(--muted);
+    }
+
+    @media (max-width: 1100px) {
+      .hero, .grid { grid-template-columns: 1fr; }
+      .span-5, .span-6, .span-7, .span-12 { grid-column: span 12; }
+      .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 720px) {
+      .shell { padding: 16px; }
+      .panel, .hero-card, .status-card { padding: 18px; }
+      .field-row { grid-template-columns: 1fr; }
+      .stat-grid { grid-template-columns: 1fr; }
+      h1 { max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="hero-card">
+        <div class="eyebrow"><span class="dot"></span>Vera control room</div>
+        <h1>Judge the bot. Tune the flow. Ship the draft.</h1>
+        <p class="hero-copy">
+          This is a lightweight dashboard for the magicpin AI Challenge bot. Point it at your local server or the deployed Railway URL,
+          inspect readiness and metrics, push contexts, simulate ticks, and preview reply handling without leaving the browser.
+        </p>
+        <div class="hero-meta">
+          <div class="pill"><strong>UI</strong> static single-page frontend</div>
+          <div class="pill"><strong>API</strong> /healthz /readiness /metadata /context /tick /reply</div>
+          <div class="pill"><strong>Mode</strong> browser-ready after CORS patch</div>
+        </div>
+      </div>
+      <div class="side-stack">
+        <div class="status-card">
+          <div class="status-line">
+            <div>
+              <div class="status-title">Connection</div>
+              <div id="connectionValue" class="status-value">Not checked yet</div>
+            </div>
+            <span id="connectionBadge" class="badge warn">idle</span>
+          </div>
+          <div class="status-line">
+            <div>
+              <div class="status-title">Base URL</div>
+              <div id="baseUrlLabel" class="status-value mono"></div>
+            </div>
+          </div>
+          <div class="status-line">
+            <div>
+              <div class="status-title">Current bot</div>
+              <div id="botName" class="status-value">—</div>
+            </div>
+          </div>
+        </div>
+        <div class="status-card">
+          <div class="status-title">Quick actions</div>
+          <div class="button-row">
+            <button class="ghost" id="loadLocal">Load localhost</button>
+            <button class="ghost" id="loadRailway">Load Railway</button>
+            <button class="secondary" id="refreshAll">Refresh status</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel span-12">
+        <div class="toolbar">
+          <div>
+            <h2>Bot status</h2>
+            <p class="sub">Live health, readiness, metadata, and metrics from the bot instance.</p>
+          </div>
+          <div class="button-row">
+            <button class="primary" id="pollStatus">Poll API</button>
+            <button class="ghost" id="copyStatus">Copy summary</button>
+          </div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat"><div class="kicker">Health</div><div id="healthValue" class="value">—</div><div id="healthNote" class="note">Waiting for response.</div></div>
+          <div class="stat"><div class="kicker">Readiness</div><div id="readyValue" class="value">—</div><div id="readyNote" class="note">—</div></div>
+          <div class="stat"><div class="kicker">Contexts</div><div id="contextsValue" class="value">—</div><div id="contextsNote" class="note">Loaded categories / merchants / customers / triggers.</div></div>
+          <div class="stat"><div class="kicker">Metrics</div><div id="metricsValue" class="value">—</div><div id="metricsNote" class="note">Action and reply counters.</div></div>
+        </div>
+      </div>
+
+      <div class="panel span-6">
+        <div class="toolbar">
+          <div>
+            <h2>Endpoint target</h2>
+            <p class="sub">Change this once and every panel follows the same base URL.</p>
+          </div>
+        </div>
+        <div class="controls">
+          <div class="field-row">
+            <label for="baseUrl">Bot URL</label>
+            <input id="baseUrl" type="text" placeholder="http://localhost:8080" />
+          </div>
+          <div class="field-row">
+            <label for="requestTimeout">Timeout</label>
+            <input id="requestTimeout" type="number" min="2" max="60" step="1" value="15" />
+          </div>
+          <div class="button-row">
+            <button class="primary" id="saveBaseUrl">Save</button>
+            <button class="ghost" id="resetBaseUrl">Reset default</button>
+          </div>
+        </div>
+        <p class="footer">Tip: the frontend is happiest when the bot is either local or deployed with the CORS patch enabled.</p>
+      </div>
+
+      <div class="panel span-6">
+        <div class="toolbar">
+          <div>
+            <h2>Raw response</h2>
+            <p class="sub">The last API response is shown here, prettified for quick inspection.</p>
+          </div>
+          <div class="button-row">
+            <button class="ghost" id="clearConsole">Clear</button>
+          </div>
+        </div>
+        <div class="console">
+          <div class="console-head">
+            <span>Console</span>
+            <span id="lastEndpoint">idle</span>
+          </div>
+          <pre id="consoleOutput">Waiting for a request...</pre>
+        </div>
+      </div>
+
+      <div class="panel span-6">
+        <div class="toolbar">
+          <div>
+            <h2>Bot result</h2>
+            <p class="sub">Readable cards for the last context, tick, reply, or teardown response.</p>
+          </div>
+          <div class="button-row">
+            <button class="ghost" id="clearResult">Clear</button>
+          </div>
+        </div>
+        <div id="resultSummary" class="status-strip"></div>
+        <div id="resultCards" class="result-list"></div>
+      </div>
+
+      <div class="panel span-6">
+        <div class="toolbar">
+          <div>
+            <h2>Push context</h2>
+            <p class="sub">Send category, merchant, customer, or trigger payloads into the bot state.</p>
+          </div>
+          <div class="button-row">
+            <button class="ghost" data-sample="context">Load sample</button>
+          </div>
+        </div>
+        <div class="controls">
+          <div class="field-row">
+            <label for="contextScope">Scope</label>
+            <select id="contextScope">
+              <option value="category">category</option>
+              <option value="merchant">merchant</option>
+              <option value="customer">customer</option>
+              <option value="trigger">trigger</option>
+            </select>
+          </div>
+          <div class="field-row">
+            <label for="contextId">Context ID</label>
+            <input id="contextId" type="text" placeholder="dentists" />
+          </div>
+          <div class="field-row">
+            <label for="contextVersion">Version</label>
+            <input id="contextVersion" type="number" min="1" step="1" value="1" />
+          </div>
+          <div class="field-row">
+            <label for="contextPayload">Payload JSON</label>
+            <textarea id="contextPayload"></textarea>
+          </div>
+          <div class="button-row">
+            <button class="primary" id="sendContext">Send context</button>
+            <button class="ghost" id="loadSampleContext">Restore sample</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel span-6">
+        <div class="toolbar">
+          <div>
+            <h2>Simulate tick</h2>
+            <p class="sub">Send active trigger IDs and inspect the generated actions in one go.</p>
+          </div>
+          <div class="button-row">
+            <button class="ghost" data-sample="tick">Load sample</button>
+          </div>
+        </div>
+        <div class="controls">
+          <div class="field-row">
+            <label for="tickNow">Now</label>
+            <input id="tickNow" type="text" />
+          </div>
+          <div class="field-row">
+            <label for="tickTriggers">Trigger IDs</label>
+            <textarea id="tickTriggers" style="min-height: 120px;"></textarea>
+          </div>
+          <div class="button-row">
+            <button class="primary" id="sendTick">Run tick</button>
+            <button class="ghost" id="loadSampleTick">Restore sample</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel span-6">
+        <div class="toolbar">
+          <div>
+            <h2>Simulate reply</h2>
+            <p class="sub">Test the merchant reply handler with intent transitions, hostile replies, and out-of-scope asks.</p>
+          </div>
+          <div class="button-row">
+            <button class="ghost" data-sample="reply">Load sample</button>
+          </div>
+        </div>
+        <div class="controls">
+          <div class="field-row">
+            <label for="replyConversationId">Conversation</label>
+            <input id="replyConversationId" type="text" placeholder="conv_001" />
+          </div>
+          <div class="field-row">
+            <label for="replyMerchantId">Merchant ID</label>
+            <input id="replyMerchantId" type="text" placeholder="merchant_001" />
+          </div>
+          <div class="field-row">
+            <label for="replyTurn">Turn</label>
+            <input id="replyTurn" type="number" min="1" step="1" value="1" />
+          </div>
+          <div class="field-row">
+            <label for="replyCustomerId">Customer ID</label>
+            <input id="replyCustomerId" type="text" placeholder="optional" />
+          </div>
+          <div class="field-row">
+            <label for="replyMessage">Merchant message</label>
+            <textarea id="replyMessage" style="min-height: 120px;"></textarea>
+          </div>
+          <div class="button-row">
+            <button class="primary" id="sendReply">Run reply</button>
+            <button class="ghost" id="loadSampleReply">Restore sample</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel span-6">
+        <div class="toolbar">
+          <div>
+            <h2>Teardown</h2>
+            <p class="sub">Clear state between experiments before a fresh judge-style run.</p>
+          </div>
+        </div>
+        <div class="button-row">
+          <button class="secondary" id="sendTeardown">POST /v1/teardown</button>
+        </div>
+        <div class="divider"></div>
+        <p class="footer">
+          Recommended flow: set the bot URL, poll status, load a sample payload, send context, then run tick or reply.
+          Use the console to inspect the exact JSON the bot returns.
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const DEPLOYED_BOT_URL = 'https://magicpin-ai-challenge-production.up.railway.app';
+    const LOCAL_BOT_URL = 'http://127.0.0.1:8080';
+    const STORAGE_KEY = 'vera-control-room-base-url';
+
+    const samples = {
+      context: {
+        scope: 'merchant',
+        id: 'merchant_001',
+        version: 1,
+        payload: {
+          merchant_id: 'merchant_001',
+          identity: { name: 'Smile Studio', city: 'Bengaluru', locality: 'Indiranagar' },
+          category_slug: 'salons',
+          subscription: { plan: 'Pro', days_remaining: 12 },
+          performance: { ctr: 0.021, delta_7d: { views_pct: 0.18, calls_pct: 0.09 } },
+          offers: [{ title: 'Monsoon Haircut Offer', status: 'active' }],
+          signals: ['ctr_below_peer', 'stale_posts']
+        }
+      },
+      tick: {
+        now: new Date().toISOString(),
+        triggers: ['trigger_001', 'trigger_002', 'trigger_003']
+      },
+      reply: {
+        conversation_id: 'conv_001',
+        merchant_id: 'merchant_001',
+        customer_id: '',
+        turn: 1,
+        message: 'Yes please, send it.'
+      }
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    const baseUrlInput = $('baseUrl');
+    const timeoutInput = $('requestTimeout');
+    const consoleOutput = $('consoleOutput');
+    const lastEndpoint = $('lastEndpoint');
+    const resultSummary = $('resultSummary');
+    const resultCards = $('resultCards');
+    const connectionBadge = $('connectionBadge');
+    const connectionValue = $('connectionValue');
+    const baseUrlLabel = $('baseUrlLabel');
+    const botName = $('botName');
+
+    const healthValue = $('healthValue');
+    const readyValue = $('readyValue');
+    const contextsValue = $('contextsValue');
+    const metricsValue = $('metricsValue');
+    const healthNote = $('healthNote');
+    const readyNote = $('readyNote');
+    const contextsNote = $('contextsNote');
+    const metricsNote = $('metricsNote');
+
+    const contextScope = $('contextScope');
+    const contextId = $('contextId');
+    const contextVersion = $('contextVersion');
+    const contextPayload = $('contextPayload');
+    const tickNow = $('tickNow');
+    const tickTriggers = $('tickTriggers');
+    const replyConversationId = $('replyConversationId');
+    const replyMerchantId = $('replyMerchantId');
+    const replyTurn = $('replyTurn');
+    const replyCustomerId = $('replyCustomerId');
+    const replyMessage = $('replyMessage');
+    let resultHistory = [];
+
+    function isLocalHost(hostname) {
+      return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
+    }
+
+    function defaultBotUrl() {
+      if (window.location.protocol === 'file:' || isLocalHost(window.location.hostname)) {
+        return LOCAL_BOT_URL;
+      }
+      return DEPLOYED_BOT_URL;
+    }
+
+    function loadBaseUrl() {
+      return localStorage.getItem(STORAGE_KEY) || defaultBotUrl();
+    }
+
+    function saveBaseUrl(value) {
+      localStorage.setItem(STORAGE_KEY, value);
+      baseUrlInput.value = value;
+      baseUrlLabel.textContent = value;
+    }
+
+    function endpoint(path) {
+      return `${baseUrlInput.value.replace(/\/$/, '')}${path}`;
+    }
+
+    function timeoutMs() {
+      const parsed = Number(timeoutInput.value || 15);
+      return Number.isFinite(parsed) ? Math.max(2, Math.min(60, parsed)) * 1000 : 15000;
+    }
+
+    async function request(path, options = {}) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs());
+      try {
+        const response = await fetch(endpoint(path), {
+          headers: { 'Content-Type': 'application/json' },
+          ...options,
+          signal: controller.signal
+        });
+        const text = await response.text();
+        let data = text;
+        try { data = text ? JSON.parse(text) : {}; } catch (_) {}
+        return { ok: response.ok, status: response.status, data };
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    function pretty(value) {
+      if (typeof value === 'string') return value;
+      return JSON.stringify(value, null, 2);
+    }
+
+    function showConsole(title, payload) {
+      lastEndpoint.textContent = title;
+      consoleOutput.textContent = pretty(payload);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function clearResultCards() {
+      resultHistory = [];
+      resultSummary.innerHTML = '';
+      resultCards.innerHTML = '';
+    }
+
+    function addSummaryTag(text, kind = 'gray') {
+      const el = document.createElement('span');
+      el.className = `tag ${kind}`;
+      el.textContent = text;
+      resultSummary.appendChild(el);
+    }
+
+    function addResultCard(title, subtitle, meta, body, tags = []) {
+      const item = document.createElement('div');
+      item.className = 'result-item';
+      item.innerHTML = `
+        <div class="result-head">
+          <div>
+            <div class="result-title">${escapeHtml(title)}</div>
+            <div class="result-subtitle">${escapeHtml(subtitle || '')}</div>
+          </div>
+          <div class="result-meta">${escapeHtml(meta || '')}</div>
+        </div>
+        ${body ? `<div class="result-body">${escapeHtml(body)}</div>` : ''}
+        ${tags.length ? `<div class="result-tags">${tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}</div>` : ''}
+      `;
+      resultCards.appendChild(item);
+    }
+
+    function addBubble(side, kind, title, subtitle, meta, body, tags = []) {
+      const row = document.createElement('div');
+      row.className = `result-row ${side}`;
+      const item = document.createElement('div');
+      item.className = `result-item ${kind}`;
+      item.innerHTML = `
+        <div class="result-head">
+          <div>
+            <div class="result-title">${escapeHtml(title)}</div>
+            <div class="result-subtitle">${escapeHtml(subtitle || '')}</div>
+          </div>
+          <div class="result-meta">${escapeHtml(meta || '')}</div>
+        </div>
+        ${body ? `<div class="result-body">${escapeHtml(body)}</div>` : ''}
+        ${tags.length ? `<div class="result-tags">${tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}</div>` : ''}
+      `;
+      row.appendChild(item);
+      resultCards.appendChild(row);
+    }
+
+    function appendBotResult(endpoint, result) {
+      if (!result) {
+        resultHistory.push({ endpoint, kind: 'empty', data: null });
+      } else {
+        resultHistory.push({ endpoint, kind: 'response', data: result });
+      }
+
+      resultSummary.innerHTML = '';
+      resultCards.innerHTML = '';
+
+      if (!resultHistory.length) {
+        addSummaryTag('no result', 'gray');
+        addResultCard('No response yet', 'Run a bot action to see structured output.', endpoint, '');
+        return;
+      }
+
+      const latest = resultHistory[resultHistory.length - 1];
+      const data = latest.data?.data ?? latest.data ?? null;
+      if (!data) {
+        addSummaryTag('no result', 'gray');
+        addBubble('left', 'status', 'No response yet', 'Run a bot action to see structured output.', endpoint, '');
+        if (resultHistory.length > 1) {
+          resultHistory.slice(0, -1).forEach((entry, index) => {
+            const entryData = entry.data?.data ?? entry.data ?? null;
+            if (!entryData) return;
+            if (Array.isArray(entryData?.actions)) {
+              addBubble('left', 'tick', `Event ${index + 1}: tick`, `${entryData.actions.length} action(s)`, entry.endpoint, '', [`actions: ${entryData.actions.length}`]);
+              return;
+            }
+            if (entryData?.action) {
+              addBubble('right', 'reply', `Event ${index + 1}: reply`, entryData.cta ? `cta · ${entryData.cta}` : '', entry.endpoint, entryData.body || pretty(entryData), ['reply']);
+              return;
+            }
+            if (entryData?.accepted !== undefined || entryData?.ack_id) {
+              addBubble('left', 'context', `Event ${index + 1}: context`, entryData.accepted ? 'accepted' : 'rejected', entry.endpoint, entryData.ack_id ? `Ack ID: ${entryData.ack_id}` : pretty(entryData), ['context']);
+              return;
+            }
+            addBubble('left', 'status', `Event ${index + 1}`, '', entry.endpoint, pretty(entryData), []);
+          });
+        }
+        return;
+      }
+      const ok = latest.data?.ok !== false;
+      const status = typeof latest.data?.status === 'number' ? `${latest.data.status}` : '';
+
+      addSummaryTag(`events ${resultHistory.length}`, 'gray');
+      addSummaryTag(ok ? 'success' : 'error', ok ? 'good' : 'bad');
+      if (status) addSummaryTag(`HTTP ${status}`);
+      addSummaryTag(endpoint);
+
+      if (data?.accepted !== undefined || data?.ack_id) {
+        addBubble(
+          'left',
+          'context',
+          data.accepted ? 'Context accepted' : 'Context rejected',
+          data.reason ? `${data.reason}` : 'Context push response',
+          `scope · ${data.details || data.current_version || 'context'}`,
+          data.ack_id ? `Ack ID: ${data.ack_id}\nStored at: ${data.stored_at || 'n/a'}` : pretty(data),
+          [data.accepted ? 'stored' : 'rejected']
+        );
+        return;
+      }
+
+      if (Array.isArray(data?.actions)) {
+        addBubble(
+          'left',
+          'tick',
+          `Tick returned ${data.actions.length} action(s)`,
+          'Each card below is one action from /v1/tick.',
+          endpoint,
+          '',
+          [`actions: ${data.actions.length}`]
+        );
+        data.actions.forEach((action, index) => {
+          addBubble(
+            'left',
+            'tick',
+            `${index + 1}. ${action.action || 'send'}`,
+            action.trigger_id ? `trigger ${action.trigger_id}` : 'generated action',
+            action.cta ? `cta · ${action.cta}` : 'cta · n/a',
+            action.body || action.rationale || pretty(action),
+            [
+              action.send_as ? `send as: ${action.send_as}` : 'send as: n/a',
+              action.template_name ? `template: ${action.template_name}` : 'template: none',
+              action.conversation_id ? `conversation: ${action.conversation_id}` : 'conversation: n/a'
+            ]
+          );
+        });
+        return;
+      }
+
+      if (data?.action) {
+        addBubble(
+          'right',
+          'reply',
+          `Reply action: ${data.action}`,
+          data.rationale || 'Reply handler result',
+          data.cta ? `cta · ${data.cta}` : endpoint,
+          data.body || pretty(data),
+          [
+            data.conversation_id ? `conversation: ${data.conversation_id}` : 'conversation: n/a',
+            data.merchant_id ? `merchant: ${data.merchant_id}` : 'merchant: n/a'
+          ]
+        );
+        return;
+      }
+
+      if (data?.status || data?.ready !== undefined) {
+        addBubble(
+          'left',
+          'status',
+          `Status: ${data.status || 'ok'}`,
+          endpoint,
+          'health snapshot',
+          pretty(data),
+          [data.ready !== undefined ? `ready: ${String(data.ready)}` : 'ready: n/a']
+        );
+        return;
+      }
+
+      addBubble('left', 'status', 'Raw response', endpoint, status ? `HTTP ${status}` : '', pretty(data), []);
+
+      if (resultHistory.length > 1) {
+        resultHistory.slice(0, -1).forEach((entry, index) => {
+          const entryData = entry.data?.data ?? entry.data ?? null;
+          if (!entryData) {
+            addBubble('left', 'status', `Event ${index + 1}`, 'no payload', entry.endpoint, '', ['empty']);
+            return;
+          }
+          if (Array.isArray(entryData?.actions)) {
+            addBubble('left', 'tick', `Event ${index + 1}: tick`, `${entryData.actions.length} action(s)`, entry.endpoint, '', [`actions: ${entryData.actions.length}`]);
+            return;
+          }
+          if (entryData?.action) {
+            addBubble('right', 'reply', `Event ${index + 1}: reply`, entryData.cta ? `cta · ${entryData.cta}` : '', entry.endpoint, entryData.body || pretty(entryData), ['reply']);
+            return;
+          }
+          if (entryData?.accepted !== undefined || entryData?.ack_id) {
+            addBubble('left', 'context', `Event ${index + 1}: context`, entryData.accepted ? 'accepted' : 'rejected', entry.endpoint, entryData.ack_id ? `Ack ID: ${entryData.ack_id}` : pretty(entryData), ['context']);
+            return;
+          }
+          addBubble('left', 'status', `Event ${index + 1}`, '', entry.endpoint, pretty(entryData), []);
+        });
+      }
+    }
+
+    function setBadge(kind, text) {
+      connectionBadge.className = `badge ${kind}`;
+      connectionBadge.textContent = text;
+    }
+
+    function fmtStatus(status) {
+      if (!status) return '—';
+      return `${status.status ?? 'unknown'}${typeof status.uptime_seconds === 'number' ? ` • ${status.uptime_seconds}s` : ''}`;
+    }
+
+    function sumMetrics(metrics) {
+      if (!metrics || typeof metrics !== 'object') return 0;
+      return [
+        'context_push_total', 'tick_total', 'actions_sent_total',
+        'reply_total', 'reply_action_send_total', 'reply_action_wait_total',
+        'reply_action_end_total'
+      ].reduce((total, key) => total + (Number(metrics[key]) || 0), 0);
+    }
+
+    function updateHealthUI(health, readiness, metadata, metrics) {
+      healthValue.textContent = health?.status || '—';
+      healthNote.textContent = health ? `Uptime ${health.uptime_seconds ?? 'n/a'}s` : 'No response yet.';
+
+      readyValue.textContent = readiness?.ready ? 'ready' : readiness ? 'warming' : '—';
+      readyNote.textContent = readiness ? `Categories ${readiness.contexts_loaded?.category ?? 0}, merchants ${readiness.contexts_loaded?.merchant ?? 0}` : 'No response yet.';
+
+      const counts = readiness?.contexts_loaded || health?.contexts_loaded || {};
+      contextsValue.textContent = `${counts.category ?? 0} / ${counts.merchant ?? 0}`;
+      contextsNote.textContent = `customer ${counts.customer ?? 0}, trigger ${counts.trigger ?? 0}`;
+
+      metricsValue.textContent = metrics ? `${sumMetrics(metrics)}` : '—';
+      metricsNote.textContent = metrics ? `replies ${metrics.reply_total ?? 0}, actions ${metrics.actions_sent_total ?? 0}` : 'No response yet.';
+
+      if (metadata?.team_name) {
+        botName.textContent = `${metadata.team_name} • ${metadata.model || 'model unknown'}`;
+      }
+    }
+
+    async function refreshStatus() {
+      try {
+        const [health, readiness, metadata, metrics] = await Promise.all([
+          request('/v1/healthz'),
+          request('/v1/readiness'),
+          request('/v1/metadata'),
+          request('/v1/metrics')
+        ]);
+
+        const payload = {
+          health: health.data,
+          readiness: readiness.data,
+          metadata: metadata.data,
+          metrics: metrics.data
+        };
+        showConsole('status poll', payload);
+        updateHealthUI(health.data, readiness.data, metadata.data, metrics.data);
+
+        const healthy = health.ok && readiness.ok && metadata.ok && metrics.ok;
+        if (healthy) {
+          setBadge('good', 'connected');
+          connectionValue.textContent = readiness.data?.ready ? 'ready' : 'warming';
+        } else {
+          setBadge('warn', 'degraded');
+          connectionValue.textContent = 'partial';
+        }
+      } catch (error) {
+        setBadge('bad', 'offline');
+        connectionValue.textContent = 'offline';
+        showConsole('status poll error', { error: String(error) });
+      }
+    }
+
+    function loadSample(type) {
+      if (type === 'context') {
+        contextScope.value = samples.context.scope;
+        contextId.value = samples.context.id;
+        contextVersion.value = samples.context.version;
+        contextPayload.value = JSON.stringify(samples.context.payload, null, 2);
+      }
+      if (type === 'tick') {
+        tickNow.value = samples.tick.now;
+        tickTriggers.value = samples.tick.triggers.join('\n');
+      }
+      if (type === 'reply') {
+        replyConversationId.value = samples.reply.conversation_id;
+        replyMerchantId.value = samples.reply.merchant_id;
+        replyCustomerId.value = samples.reply.customer_id;
+        replyTurn.value = samples.reply.turn;
+        replyMessage.value = samples.reply.message;
+      }
+    }
+
+    async function sendContext() {
+      try {
+        const payload = JSON.parse(contextPayload.value || '{}');
+        const body = {
+          scope: contextScope.value,
+          context_id: contextId.value.trim(),
+          version: Number(contextVersion.value),
+          payload,
+          delivered_at: new Date().toISOString()
+        };
+        const result = await request('/v1/context', { method: 'POST', body: JSON.stringify(body) });
+        showConsole('POST /v1/context', result);
+        appendBotResult('POST /v1/context', result);
+        await refreshStatus();
+      } catch (error) {
+        showConsole('POST /v1/context error', { error: String(error) });
+        appendBotResult('POST /v1/context error', { ok: false, data: { error: String(error) } });
+      }
+    }
+
+    async function sendTick() {
+      try {
+        const triggers = tickTriggers.value.split('\n').map((item) => item.trim()).filter(Boolean);
+        const body = {
+          now: tickNow.value.trim() || new Date().toISOString(),
+          available_triggers: triggers
+        };
+        const result = await request('/v1/tick', { method: 'POST', body: JSON.stringify(body) });
+        showConsole('POST /v1/tick', result);
+        appendBotResult('POST /v1/tick', result);
+        await refreshStatus();
+      } catch (error) {
+        showConsole('POST /v1/tick error', { error: String(error) });
+        appendBotResult('POST /v1/tick error', { ok: false, data: { error: String(error) } });
+      }
+    }
+
+    async function sendReply() {
+      try {
+        const body = {
+          conversation_id: replyConversationId.value.trim(),
+          merchant_id: replyMerchantId.value.trim(),
+          customer_id: replyCustomerId.value.trim() || null,
+          from_role: 'merchant',
+          message: replyMessage.value,
+          received_at: new Date().toISOString(),
+          turn_number: Number(replyTurn.value)
+        };
+        const result = await request('/v1/reply', { method: 'POST', body: JSON.stringify(body) });
+        showConsole('POST /v1/reply', result);
+        appendBotResult('POST /v1/reply', result);
+        await refreshStatus();
+      } catch (error) {
+        showConsole('POST /v1/reply error', { error: String(error) });
+        appendBotResult('POST /v1/reply error', { ok: false, data: { error: String(error) } });
+      }
+    }
+
+    async function sendTeardown() {
+      try {
+        const result = await request('/v1/teardown', { method: 'POST', body: '{}' });
+        showConsole('POST /v1/teardown', result);
+        appendBotResult('POST /v1/teardown', result);
+        await refreshStatus();
+      } catch (error) {
+        showConsole('POST /v1/teardown error', { error: String(error) });
+        appendBotResult('POST /v1/teardown error', { ok: false, data: { error: String(error) } });
+      }
+    }
+
+    async function copySummary() {
+      const summary = {
+        baseUrl: baseUrlInput.value,
+        health: healthValue.textContent,
+        readiness: readyValue.textContent,
+        contexts: contextsValue.textContent,
+        metrics: metricsValue.textContent
+      };
+      try {
+        await navigator.clipboard?.writeText(JSON.stringify(summary, null, 2));
+        showConsole('summary copied', summary);
+      } catch (error) {
+        showConsole('summary copy error', { error: String(error), summary });
+      }
+    }
+
+    function bind() {
+      $('pollStatus').addEventListener('click', refreshStatus);
+      $('refreshAll').addEventListener('click', refreshStatus);
+      $('sendContext').addEventListener('click', sendContext);
+      $('sendTick').addEventListener('click', sendTick);
+      $('sendReply').addEventListener('click', sendReply);
+      $('sendTeardown').addEventListener('click', sendTeardown);
+      $('saveBaseUrl').addEventListener('click', () => saveBaseUrl(baseUrlInput.value.trim() || defaultBotUrl()));
+      $('resetBaseUrl').addEventListener('click', () => saveBaseUrl(defaultBotUrl()));
+      $('loadLocal').addEventListener('click', () => saveBaseUrl(LOCAL_BOT_URL));
+      $('loadRailway').addEventListener('click', () => saveBaseUrl(DEPLOYED_BOT_URL));
+      $('copyStatus').addEventListener('click', copySummary);
+      $('clearConsole').addEventListener('click', () => showConsole('console cleared', 'Waiting for a request...'));
+      $('clearResult').addEventListener('click', clearResultCards);
+      $('loadSampleContext').addEventListener('click', () => loadSample('context'));
+      $('loadSampleTick').addEventListener('click', () => loadSample('tick'));
+      $('loadSampleReply').addEventListener('click', () => loadSample('reply'));
+
+      document.querySelectorAll('[data-sample]').forEach((button) => {
+        button.addEventListener('click', () => loadSample(button.dataset.sample));
+      });
+    }
+
+    function init() {
+      saveBaseUrl(loadBaseUrl());
+      loadSample('context');
+      loadSample('tick');
+      loadSample('reply');
+      bind();
+      clearResultCards();
+      appendBotResult('idle', null);
+      refreshStatus();
+      setInterval(refreshStatus, 30000);
+    }
+
+    init();
+  </script>
+</body>
+</html>
