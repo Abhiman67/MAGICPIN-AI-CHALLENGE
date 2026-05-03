@@ -17,7 +17,7 @@
 
 [96m[1m--- WARMUP ---[0m
 
-[92m[PASS][0m healthz (957ms)
+[92m[PASS][0m healthz (542ms)
 [92m[PASS][0m metadata — Team: Team Vera, Model: rules-based composer
 
 [96m[1m--- CONTEXT PUSH ---[0m
@@ -39,7 +39,7 @@
 
 [96m[1m--- SCORING COMPOSITIONS ---[0m
 
-[94m[INFO][0m Batch 1: 5 actions (772ms)
+[94m[INFO][0m Batch 1: 5 actions (1198ms)
 [35m[LLM][0m Analyzing message...
 
 [96mMessage:[0m "Dr. Bharat, your Pro plan renewal is coming up — 1..."
@@ -62,35 +62,35 @@
   [1mTOTAL: 41/50[0m
 [35m[LLM][0m Analyzing message...
 
-[96mMessage:[0m "Dr. Meera, quick update for Dr. Meera's Dental Cli..."
-  Specificity            [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
-  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+[96mMessage:[0m "Dr. Meera, compliance update for Dr. Meera's Denta..."
+  Specificity            [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Category Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
   Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
-  Decision Quality       [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Decision Quality       [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
   Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
 
-  [1mTOTAL: 32/50[0m
+  [1mTOTAL: 38/50[0m
 [35m[LLM][0m Analyzing message...
 
 [96mMessage:[0m "Dr. Meera, quick update for Dr. Meera's Dental Cli..."
-  Specificity            [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
-  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
-  Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Specificity            [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Category Fit           [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Merchant Fit           [[93m████████[2m░░░░░░░░░░░░[0m] [93m 4/10[0m
   Decision Quality       [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
-  Engagement             [[93m████████[2m░░░░░░░░░░░░[0m] [93m 4/10[0m
+  Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
 
-  [1mTOTAL: 30/50[0m
+  [1mTOTAL: 26/50[0m
 [35m[LLM][0m Analyzing message...
 
 [96mMessage:[0m "Dr. Meera, JIDA's Oct issue landed. One item relev..."
   Specificity            [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
   Category Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
   Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
-  Decision Quality       [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
-  Engagement             [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Decision Quality       [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
 
-  [1mTOTAL: 35/50[0m
-[94m[INFO][0m Batch 2: 5 actions (811ms)
+  [1mTOTAL: 38/50[0m
+[94m[INFO][0m Batch 2: 5 actions (1642ms)
 [35m[LLM][0m Analyzing message...
 
 [96mMessage:[0m "Suresh, quick heads-up on DC vs MI. Your active of..."
@@ -103,14 +103,14 @@
   [1mTOTAL: 37/50[0m
 [35m[LLM][0m Analyzing message...
 
-[96mMessage:[0m "Anjali, quick update for Glamour Lounge Spa & Salo..."
-  Specificity            [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
-  Category Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
-  Merchant Fit           [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+[96mMessage:[0m "Anjali, reactivation window is open for Glamour Lo..."
+  Specificity            [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
   Decision Quality       [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
   Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
 
-  [1mTOTAL: 29/50[0m
+  [1mTOTAL: 32/50[0m
 [35m[LLM][0m Analyzing message...
 
 [96mMessage:[0m "Lakshmi, quick update for Studio11 Family Salon in..."
@@ -124,9 +124,9 @@
 [35m[LLM][0m Analyzing message...
 
 [96mMessage:[0m "Lakshmi, quick question: what service is most aske..."
-  Specificity            [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Specificity            [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
   Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
-  Merchant Fit           [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
   Decision Quality       [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
   Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
 
@@ -141,17 +141,17 @@
   Engagement             [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
 
   [1mTOTAL: 37/50[0m
-[94m[INFO][0m Batch 3: 5 actions (1031ms)
+[94m[INFO][0m Batch 3: 5 actions (1471ms)
 [35m[LLM][0m Analyzing message...
 
 [96mMessage:[0m "Suresh, here’s a starter version for corporate_bul..."
   Specificity            [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
   Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
   Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
-  Decision Quality       [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Decision Quality       [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
   Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
 
-  [1mTOTAL: 32/50[0m
+  [1mTOTAL: 34/50[0m
 [35m[LLM][0m Analyzing message...
 
 [96mMessage:[0m "Suresh, 4 reviews are pointing at delivery late. P..."
@@ -175,34 +175,34 @@
 [35m[LLM][0m Analyzing message...
 
 [96mMessage:[0m "Suresh, nice milestone on review_count — 145 towar..."
-  Specificity            [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
-  Category Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
-  Merchant Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Specificity            [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Merchant Fit           [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
   Decision Quality       [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
-  Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Engagement             [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
 
-  [1mTOTAL: 37/50[0m
+  [1mTOTAL: 33/50[0m
 [35m[LLM][0m Analyzing message...
 
 [96mMessage:[0m "Karthik, your HSR Layout listing needs a recovery ..."
-  Specificity            [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
-  Category Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Specificity            [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
   Merchant Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
   Decision Quality       [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
   Engagement             [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
 
   [1mTOTAL: 41/50[0m
-[94m[INFO][0m Batch 4: 5 actions (1219ms)
+[94m[INFO][0m Batch 4: 5 actions (1039ms)
 [35m[LLM][0m Analyzing message...
 
-[96mMessage:[0m "Ramesh, quick update for Apollo Health Plus Pharma..."
-  Specificity            [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
-  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
-  Merchant Fit           [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
-  Decision Quality       [[93m████████[2m░░░░░░░░░░░░[0m] [93m 4/10[0m
-  Engagement             [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+[96mMessage:[0m "Ramesh, urgent supply alert for atorvastatin. Affe..."
+  Specificity            [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Category Fit           [[92m████████████████████[2m[0m] [92m10/10[0m
+  Merchant Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Decision Quality       [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Engagement             [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
 
-  [1mTOTAL: 28/50[0m
+  [1mTOTAL: 43/50[0m
 [35m[LLM][0m Analyzing message...
 
 [96mMessage:[0m "Padma, here’s a starter version for kids_yoga_summ..."
@@ -216,70 +216,70 @@
 [35m[LLM][0m Analyzing message...
 
 [96mMessage:[0m "Ramesh, quick update for Apollo Health Plus Pharma..."
-  Specificity            [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Specificity            [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
   Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
-  Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
-  Decision Quality       [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
-  Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Merchant Fit           [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Decision Quality       [[93m████████[2m░░░░░░░░░░░░[0m] [93m 4/10[0m
+  Engagement             [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
 
-  [1mTOTAL: 32/50[0m
+  [1mTOTAL: 28/50[0m
 [35m[LLM][0m Analyzing message...
 
 [96mMessage:[0m "Padma, quick update for Zen Yoga Studio in Mylapor..."
   Specificity            [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
   Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
-  Merchant Fit           [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Decision Quality       [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+
+  [1mTOTAL: 32/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Ramesh, demand-shift alert for summer 2026. Top si..."
+  Specificity            [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Category Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Decision Quality       [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Engagement             [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+
+  [1mTOTAL: 35/50[0m
+[94m[INFO][0m Batch 5: 5 actions (660ms)
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Vikas, your Google profile is currently unverified..."
+  Specificity            [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Category Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
   Decision Quality       [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
   Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
 
-  [1mTOTAL: 32/50[0m
+  [1mTOTAL: 37/50[0m
 [35m[LLM][0m Analyzing message...
 
-[96mMessage:[0m "Ramesh, quick update for Apollo Health Plus Pharma..."
+[96mMessage:[0m "Anjali, reactivation window is open for Glamour Lo..."
   Specificity            [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
-  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
-  Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
-  Decision Quality       [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
-  Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Category Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Merchant Fit           [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Decision Quality       [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Engagement             [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
 
-  [1mTOTAL: 32/50[0m
-[94m[INFO][0m Batch 5: 5 actions (619ms)
-[35m[LLM][0m Analyzing message...
-
-[96mMessage:[0m "Vikas, quick update for Sunrise Medicos in Gomti N..."
-  Specificity            [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
-  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
-  Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
-  Decision Quality       [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
-  Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
-
-  [1mTOTAL: 32/50[0m
-[35m[LLM][0m Analyzing message...
-
-[96mMessage:[0m "Anjali, quick update for Glamour Lounge Spa & Salo..."
-  Specificity            [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
-  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
-  Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
-  Decision Quality       [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
-  Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
-
-  [1mTOTAL: 32/50[0m
+  [1mTOTAL: 29/50[0m
 [35m[LLM][0m Analyzing message...
 
 [96mMessage:[0m "Dr. Meera, Smile Studio just opened nearby — about..."
-  Specificity            [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Specificity            [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
   Category Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
   Merchant Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
-  Decision Quality       [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
-  Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Decision Quality       [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Engagement             [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
 
-  [1mTOTAL: 38/50[0m
+  [1mTOTAL: 37/50[0m
 [35m[LLM][0m Analyzing message...
 
-[96mMessage:[0m "Dr. Meera, quick update for Dr. Meera's Dental Cli..."
-  Specificity            [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+[96mMessage:[0m "Dr. Meera, quick CDE opportunity relevant to your ..."
+  Specificity            [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
   Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
-  Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Merchant Fit           [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
   Decision Quality       [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
   Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
 
@@ -291,20 +291,20 @@
   Category Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
   Merchant Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
   Decision Quality       [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
-  Engagement             [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
 
-  [1mTOTAL: 40/50[0m
+  [1mTOTAL: 38/50[0m
 
 [96m[1m--- FINAL SUMMARY ---[0m
 
 [94m[INFO][0m Messages scored: 25
 
-  Avg Specificity        [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Avg Specificity        [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
   Avg Category Fit       [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
   Avg Merchant Fit       [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
-  Avg Decision Quality   [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Avg Decision Quality   [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
   Avg Engagement         [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
 
-[1m  AVERAGE SCORE: 32/50 (64%)[0m
+[1m  AVERAGE SCORE: 34/50 (68%)[0m
 
   [93mGOOD[0m

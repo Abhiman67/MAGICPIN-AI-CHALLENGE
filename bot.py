@@ -1228,6 +1228,33 @@ def build_first_touch(
         cta_text = "Reply YES or STOP."
         template_params = [customer_name, truncate(body, 120), cta_text]
 
+    elif kind in {"recall_due", "customer_lapsed_soft", "customer_lapsed_hard", "appointment_tomorrow", "trial_followup", "chronic_refill_due", "wedding_package_followup"} and customer is None:
+        due_date = format_date(trigger_payload(trigger).get("due_date") or trigger_payload(trigger).get("next_due_date"))
+        stock_out = format_date(trigger_payload(trigger).get("stock_runs_out_iso"))
+        trial_date = format_date(trigger_payload(trigger).get("trial_date"))
+        wedding_date = format_date(trigger_payload(trigger).get("wedding_date"))
+        slots = trigger_payload(trigger).get("available_slots") or trigger_payload(trigger).get("next_session_options") or []
+        slot_count = len(slots) if isinstance(slots, list) else 0
+        body = f"{salutation}, customer follow-up is due for {merchant.get('identity', {}).get('name', 'your account')}."
+        if kind == "recall_due" and due_date:
+            body += f" Recall due by {due_date}."
+        elif kind == "chronic_refill_due" and stock_out:
+            body += f" Refill stockout risk by {stock_out}."
+        elif kind == "trial_followup" and trial_date:
+            body += f" Trial follow-up pending since {trial_date}."
+        elif kind == "wedding_package_followup" and wedding_date:
+            body += f" Wedding timeline anchor: {wedding_date}."
+        elif kind == "customer_lapsed_hard":
+            lapse_days = trigger_payload(trigger).get("days_since_last_visit")
+            if isinstance(lapse_days, int):
+                body += f" Lapsed customer window: {lapse_days} day(s)."
+        if slot_count:
+            body += f" Available slot options in trigger: {slot_count}."
+        body += " Pick 1 for a ready customer message, or 2 for a 3-touch follow-up plan."
+        body += " Reply 1 or 2."
+        cta_text = "Reply 1 or 2."
+        template_params = [salutation, truncate(body, 120), cta_text]
+
     elif kind in {"perf_dip", "seasonal_perf_dip"}:
         delta_7d = safe_get(merchant, "performance", "delta_7d", default={}) or {}
         views_pct = delta_7d.get("views_pct")
@@ -1346,9 +1373,12 @@ def build_first_touch(
 
     elif kind in {"winback_eligible", "dormant_with_vera"}:
         dormant_days = trigger_payload(trigger).get("days_since_last_merchant_message") or trigger_payload(trigger).get("days_since_expiry")
+        lapsed_added = trigger_payload(trigger).get("lapsed_customers_added_since_expiry")
         body = f"{salutation}, reactivation window is open for {merchant.get('identity', {}).get('name', 'your listing')}."
         if isinstance(dormant_days, int):
             body += f" Inactive period: {dormant_days} days."
+        if isinstance(lapsed_added, int):
+            body += f" Potential recoverable customers: {lapsed_added}."
         if ctr is not None and peer_ctr is not None:
             body += f" Current CTR {ctr:.1%} vs peer {peer_ctr:.1%}."
         body += " Pick 1 for a one-message restart, or 2 for a 7-day reactivation plan."
