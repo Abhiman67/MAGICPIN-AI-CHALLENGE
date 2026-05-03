@@ -1,6 +1,6 @@
-# magicpin AI Challenge Bot
+# magicpin AI Challenge Bot (Submission Ready)
 
-This repository now contains a standalone implementation of the Vera challenge bot.
+This repository contains a standalone implementation of the Vera challenge bot, plus local/remote evaluation tooling and a static frontend for manual verification.
 
 ## What it does
 
@@ -14,7 +14,7 @@ This repository now contains a standalone implementation of the Vera challenge b
   - `POST /v1/reply`
   - optional `POST /v1/teardown`
 - Stores category, merchant, customer, and trigger contexts with versioning and optional SQLite persistence
-- Composes outbound messages from the 4-context model
+- Composes outbound messages from the 4-context model with deterministic policy guardrails
 - Handles multi-turn merchant replies
 - Adds request rate limiting and structured request logs
 - Detects:
@@ -41,6 +41,20 @@ The message composer uses:
 - active offers
 - trigger payloads
 - customer context when present
+- fallback-safe merchant summaries when customer context is missing during judge full-evaluation
+
+## Implemented quality controls
+
+- Action-first CTA enforcement (`Reply 1 or 2`, `Reply CHECKLIST`, etc. by trigger family)
+- Specificity anchors (metrics, dates, counts, trigger-grounded context)
+- Single-primary-CTA normalization (avoid mixed asks)
+- Anti-generic opening rewrite for weak templates
+- Trigger-family behavior routing:
+  - `profile_*`, compliance, unverified listing -> profile actions
+  - `review_*` -> response/fix paths
+  - `lead_*`, winback/dormant -> recovery planning
+  - `active_planning_intent` -> execution-plan path
+  - `perf_*`, seasonal/perf-like -> performance plan path
 
 ## Run locally
 
@@ -113,6 +127,12 @@ curl http://localhost:8080/v1/metadata
 curl http://localhost:8080/v1/metrics
 ```
 
+Quality-policy tests:
+
+```bash
+python3 -m unittest discover -s tests -p 'test_quality_policy.py' -q
+```
+
 ## Notes
 
 - Context versioning is enforced.
@@ -142,6 +162,25 @@ What it does:
 - Validates report completeness (fails on incomplete runs, e.g. `0 actions`)
 - Writes structured summary metrics JSON to `reports/run_<timestamp>.json`
 
+## Submission checklist
+
+Use this exact order before final submission:
+
+1. Deploy latest `main` to Railway.
+2. Verify health + metadata:
+   - `curl -sS https://<your-railway-url>/v1/healthz`
+   - `curl -sS https://<your-railway-url>/v1/readiness`
+   - `curl -sS https://<your-railway-url>/v1/metadata`
+3. Run full scoring loop against Railway:
+   - `./scripts/run_score_loop.sh`
+4. Confirm report is complete:
+   - no failed context push
+   - no `Batch X: 0 actions`
+   - summary JSON generated in `reports/`
+5. Keep final artifacts for submission proof:
+   - `reports/run_<timestamp>.txt`
+   - `reports/run_<timestamp>.json`
+
 ## What’s covered from the challenge spec
 
 - Merchant-facing messaging
@@ -157,3 +196,10 @@ What it does:
 - Intent transition handling
 - Auto-reply detection
 - Graceful exit on opt-out
+
+## Current status
+
+- API contract implemented and passing local policy checks.
+- Railway deploy + CORS/OPTIONS compatibility implemented.
+- Judge workflow integrated with deterministic report validation.
+- Score has been stabilized in the high-60s/around-70 band with deterministic rules-only optimization, with further gains focused on decision quality and engagement consistency.

@@ -17,7 +17,7 @@
 
 [96m[1m--- WARMUP ---[0m
 
-[92m[PASS][0m healthz (765ms)
+[92m[PASS][0m healthz (530ms)
 [92m[PASS][0m metadata — Team: Team Vera, Model: rules-based composer
 
 [96m[1m--- CONTEXT PUSH ---[0m
@@ -39,8 +39,73 @@
 
 [96m[1m--- SCORING COMPOSITIONS ---[0m
 
-[94m[INFO][0m Batch 1: 0 actions (636ms)
-[94m[INFO][0m Batch 2: 0 actions (629ms)
-[94m[INFO][0m Batch 3: 0 actions (718ms)
-[94m[INFO][0m Batch 4: 0 actions (648ms)
-[94m[INFO][0m Batch 5: 0 actions (664ms)
+[94m[INFO][0m Batch 1: 0 actions (600ms)
+[94m[INFO][0m Batch 2: 0 actions (598ms)
+[94m[INFO][0m Batch 3: 5 actions (625ms)
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Suresh, plan draft ready for corporate_bulk_thali_..."
+  Specificity            [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Category Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Merchant Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Decision Quality       [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Engagement             [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+
+  [1mTOTAL: 40/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Suresh, 4 reviews are pointing at delivery late. P..."
+  Specificity            [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Merchant Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Decision Quality       [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Engagement             [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+
+  [1mTOTAL: 37/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Karthik, PowerHouse Fitness has one gym member in ..."
+  Specificity            [[93m████████[2m░░░░░░░░░░░░[0m] [93m 4/10[0m
+  Category Fit           [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Merchant Fit           [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Decision Quality       [[93m████████[2m░░░░░░░░░░░░[0m] [93m 4/10[0m
+  Engagement             [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+
+  [1mTOTAL: 24/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Suresh, nice milestone on review_count — 145 towar..."
+  Specificity            [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Category Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Decision Quality       [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Engagement             [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+
+  [1mTOTAL: 35/50[0m
+[35m[LLM][0m Analyzing message...
+[93m[WARN][0m LLM error: HTTP Error 402: Payment Required
+
+[96mMessage:[0m "Karthik, your HSR Layout listing needs a recovery ..."
+  Specificity            [[92m████████████████████[2m[0m] [92m10/10[0m
+  Category Fit           [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Merchant Fit           [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Decision Quality       [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Engagement             [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+
+  [1mTOTAL: 30/50[0m
+[94m[INFO][0m Batch 4: 0 actions (602ms)
+[94m[INFO][0m Batch 5: 0 actions (625ms)
+
+[96m[1m--- FINAL SUMMARY ---[0m
+
+[94m[INFO][0m Messages scored: 5
+
+  Avg Specificity        [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Avg Category Fit       [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Avg Merchant Fit       [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Avg Decision Quality   [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Avg Engagement         [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+
+[1m  AVERAGE SCORE: 31/50 (62%)[0m
+
+  [93mGOOD[0m

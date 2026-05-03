@@ -1,0 +1,56 @@
+{
+  "average_score": 35,
+  "average_percent": 70,
+  "metric_averages": {
+    "specificity": 7.6,
+    "category_fit": 8.32,
+    "merchant_fit": 8,
+    "decision_quality": 6.52,
+    "engagement": 6.4,
+    "total": 36.84
+  },
+  "family_average_total": {
+    "lead": 34.5,
+    "review": 36,
+    "other": 37.06,
+    "planning": 37.33,
+    "profile_perf": 38
+  },
+  "bottom_5_messages": [
+    {
+      "total": 32,
+      "specificity": 6,
+      "decision_quality": 7,
+      "engagement": 6,
+      "message": "Karthik, PowerHouse Fitness has one gym member in ..."
+    },
+    {
+      "total": 32,
+      "specificity": 6,
+      "decision_quality": 5,
+      "engagement": 6,
+      "message": "Padma, Zen Yoga Studio has one trial lead awaiting..."
+    },
+    {
+      "total": 32,
+      "specificity": 6,
+      "decision_quality": 5,
+      "engagement": 6,
+      "message": "Anjali, reactivation window is open for Glamour Lo..."
+    },
+    {
+      "total": 34,
+      "specificity": 7,
+      "decision_quality": 6,
+      "engagement": 7,
+      "message": "Dr. Meera, one 6 month cleaning follow-up is pendi..."
+    },
+    {
+      "total": 34,
+      "specificity": 7,
+      "decision_quality": 7,
+      "engagement": 6,
+      "message": "Padma, plan draft ready for kids_yoga_summer_camp...."
+    }
+  ]
+}
