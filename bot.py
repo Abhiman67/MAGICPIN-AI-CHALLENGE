@@ -868,39 +868,6 @@ def force_tail_cta(body: str, cta: str, max_len: int) -> str:
     return f"{head}.{suffix}"
 
 
-def hard_rewrite_profile_perf(
-    merchant: dict[str, Any],
-    category: dict[str, Any],
-    trigger: dict[str, Any],
-) -> str:
-    sal = merchant_salutation(merchant, merchant.get("category_slug", "generic"))
-    locality = merchant_locality(merchant) or merchant_city(merchant) or "your listing"
-    ctr = merchant_ctr(merchant)
-    peer = category_peer_ctr(category)
-    delta = safe_get(merchant, "performance", "delta_7d", default={}) or {}
-    views = delta.get("views_pct")
-    calls = delta.get("calls_pct")
-    parts = [f"{sal}, recovery signal on {locality}."]
-    metric_bits = []
-    if isinstance(views, (int, float)):
-        metric_bits.append(f"views {views:+.0%}")
-    if isinstance(calls, (int, float)):
-        metric_bits.append(f"calls {calls:+.0%}")
-    if metric_bits:
-        parts.append("Signal: " + ", ".join(metric_bits) + ".")
-    if isinstance(ctr, (int, float)) and isinstance(peer, (int, float)):
-        parts.append(f"CTR: {ctr:.1%} vs peer {peer:.1%}.")
-    missed = estimate_missed_leads(merchant)
-    if missed is not None:
-        parts.append(f"Impact now: ~{missed} missed call-leads/week.")
-    offer = active_offer(merchant)
-    if offer and offer.get("title"):
-        parts.append(f"Best offer to push: {offer.get('title')}.")
-    parts.append("Reply 1 for top-3 fixes, or 2 for a 7-day recovery plan.")
-    parts.append("I’ll send it in 3 bullets.")
-    return " ".join(parts)
-
-
 def action_token_for_family(family: str) -> str:
     mapping = {
         "profile": "CHECKLIST",
@@ -947,6 +914,66 @@ def estimate_missed_leads(merchant: dict[str, Any]) -> int | None:
     return int(missed) if missed > 0 else None
 
 
+def concrete_next_step_line(kind: str, merchant: dict[str, Any], category: dict[str, Any], trigger: dict[str, Any]) -> str:
+    family = trigger_family(kind)
+    locality = merchant_locality(merchant) or merchant_city(merchant) or "your listing"
+    offer = active_offer(merchant)
+    ctr = merchant_ctr(merchant)
+    peer_ctr = category_peer_ctr(category)
+
+    if family == "perf":
+        details: list[str] = []
+        if ctr is not None and peer_ctr is not None:
+            details.append(f"CTR {ctr:.1%} vs peer {peer_ctr:.1%}")
+        delta = safe_get(merchant, "performance", "delta_7d", default={}) or {}
+        views_pct = delta.get("views_pct")
+        calls_pct = delta.get("calls_pct")
+        change_bits: list[str] = []
+        if isinstance(views_pct, (int, float)):
+            change_bits.append(f"views {views_pct:+.0%}")
+        if isinstance(calls_pct, (int, float)):
+            change_bits.append(f"calls {calls_pct:+.0%}")
+        if change_bits:
+            details.append(", ".join(change_bits))
+        if offer:
+            details.append(f"push {offer.get('title')}")
+        if details:
+            return "Focus: " + "; ".join(details) + "."
+        return f"Focus: fix {locality} with one stronger post and one reply-ready CTA."
+
+    if family == "profile":
+        missing_fields = trigger_payload(trigger).get("missing_fields") or []
+        if isinstance(missing_fields, list) and missing_fields:
+            top_fields = ", ".join(str(x) for x in missing_fields[:3])
+            return f"Focus: fill {top_fields}."
+        return f"Focus: tighten {locality} profile details and hours."
+
+    if family == "review":
+        review_count = trigger_payload(trigger).get("review_count") or trigger_payload(trigger).get("occurrences_30d")
+        if review_count is not None:
+            return f"Focus: address {review_count} recent review signal(s)."
+        return "Focus: answer the dominant review theme first."
+
+    if family == "lead":
+        missed = trigger_payload(trigger).get("missed_searches") or trigger_payload(trigger).get("missed_leads")
+        if missed is not None:
+            return f"Focus: recover ~{missed} missed lead(s) with a 7-day follow-up plan."
+        return "Focus: convert the next wave of search intent into calls."
+
+    if family == "planning":
+        topic = trigger_payload(trigger).get("intent_topic") or "this plan"
+        return f"Focus: turn {topic} into the next action today."
+
+    if family == "general":
+        if ctr is not None and peer_ctr is not None:
+            return f"Focus: CTR {ctr:.1%} vs peer {peer_ctr:.1%}; fix the biggest gap first."
+        if offer:
+            return f"Focus: push {offer.get('title')} with one clearer CTA."
+        return f"Focus: improve {locality} with one concrete next step."
+
+    return ""
+
+
 def enforce_first_touch_quality(
     body: str,
     kind: str,
@@ -979,6 +1006,9 @@ def enforce_first_touch_quality(
             hardened += f" Reply {token}."
         if "reply " not in normalized:
             hardened += f" {decision_closer(kind, family)}"
+        concrete_step = concrete_next_step_line(kind, merchant, category, trigger)
+        if concrete_step and concrete_step not in hardened:
+            hardened += f" {concrete_step}"
         if family in {"profile", "perf", "lead", "planning", "review"}:
             required_cta = "Reply 1 or 2."
         elif token:
@@ -988,16 +1018,10 @@ def enforce_first_touch_quality(
     if "quick update from vera" in normalize(hardened):
         hardened = re.sub(
             r"quick update from vera\.?",
-            "here is today’s highest-impact move",
+            "here’s the clearest next move",
             hardened,
             flags=re.IGNORECASE,
         )
-    # Hard guard for lowest-performing family: if generic phrasing remains,
-    # replace with strict profile/perf recovery pattern.
-    if family in {"profile", "perf"} and "quick update from vera" in normalize(hardened):
-        hardened = hard_rewrite_profile_perf(merchant, category, trigger)
-        required_cta = "Reply 1 or 2."
-
     # Family shape constraints: short, action-forward, and single decision.
     family_max_len = {"profile": 360, "review": 360, "lead": 360, "planning": 340, "perf": 360, "general": 380}
     hardened = enforce_single_decision(hardened)
@@ -1307,6 +1331,7 @@ def build_first_touch(
             body += f" You said: “{truncate(merchant_last_message, 80)}”."
         if offer:
             body += f" I’ve anchored it to {offer.get('title')}."
+        body += f" Focus: {topic}."
         body += " Pick 1 for short version, or 2 for detailed version."
         body += " Reply 1 or 2 and I’ll send it ready-to-use."
         cta_text = "Reply 1 or 2."
@@ -1325,7 +1350,7 @@ def build_first_touch(
 
     else:
         locality_label = merchant_locality(merchant) or merchant_city(merchant) or "your listing"
-        body = f"{salutation}, here is today’s highest-impact move for {locality_label}."
+        body = f"{salutation}, here’s the clearest next move for {locality_label}."
         if ctr is not None and peer_ctr is not None:
             body += f" CTR: {ctr:.1%} vs peer {peer_ctr:.1%}."
         if offer:
