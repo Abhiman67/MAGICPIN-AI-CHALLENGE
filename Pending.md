@@ -62,7 +62,7 @@ Active optimization plan (in progress):
   - run tests
   - redeploy
   - run `full_evaluation`
-  - track per-dimension deltas vs latest baseline `35/50 (70%)`
+  - track per-dimension deltas vs stable baseline band `34-35/50 (68-70%)`
 - Completed foundation for rapid loops:
   - `scripts/run_score_loop.sh` clean-state + timestamped report pipeline
   - `scripts/judge_report_tools.py` report validator + structured score diagnostics
@@ -71,8 +71,37 @@ Active optimization plan (in progress):
 Current priority within optimization:
 
 - Lift `profile_perf` family (current lowest)
-- Remove remaining weak `quick update from Vera` variants in perf/profile rows
+- Remove remaining weak low-fit perf/profile variants while keeping natural merchant tone
 - Raise decision quality and engagement while preserving merchant/category fit
+
+Current score state (for decision making):
+
+- Best recent: `35/50 (70%)`
+- Stable operating band: `34-35/50 (68-70%)`
+- Latest low outlier: `30/50 (60%)` from `reports/run_20260503_185506.json`
+- Outlier metrics:
+  - specificity `6.52`
+  - category fit `7.92`
+  - merchant fit `7.24`
+  - decision quality `5.72`
+  - engagement `5.68`
+  - bottom-5 totals `22, 24, 27, 27, 28`
+
+Execution plan to push toward 80:
+
+1. Recovery and stability:
+- Re-establish `>=34` after latest recovery patch deploy
+- Run 3 consecutive loops and optimize against average, not a single run
+
+2. Precision optimization:
+- Patch only bottom-5 messages each loop
+- Prioritize rows with engagement `<=5` and decision quality `<=5` first
+- Keep one clear CTA + one concrete payoff + one metric anchor
+
+3. Milestone progression:
+- Milestone A: stabilize `>=36/50 (72%)`
+- Milestone B: stabilize `>=38/50 (76%)`
+- Milestone C: stretch to `>=40/50 (80%)`
 
 ---
 

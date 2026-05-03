@@ -1,0 +1,46 @@
+
+[95m[1m======================================================================[0m
+[95m[1m                  magicpin AI Challenge — LLM Judge                   [0m
+[95m[1m======================================================================[0m
+
+[94m[INFO][0m LLM Provider: OpenRouter (openai/gpt-4o-mini)
+[94m[INFO][0m Testing LLM connection...
+[92m[PASS][0m LLM connected successfully
+
+[95m[1m======================================================================[0m
+[95m[1m                     LLM JUDGE — FULL_EVALUATION                      [0m
+[95m[1m======================================================================[0m
+
+[94m[INFO][0m Bot: https://magicpin-ai-challenge-production.up.railway.app
+[94m[INFO][0m LLM: OpenRouter (openai/gpt-4o-mini)
+[94m[INFO][0m Loaded: 5 categories, 10 merchants, 25 triggers
+
+[96m[1m--- WARMUP ---[0m
+
+[92m[PASS][0m healthz (765ms)
+[92m[PASS][0m metadata — Team: Team Vera, Model: rules-based composer
+
+[96m[1m--- CONTEXT PUSH ---[0m
+
+  [FAIL] category/dentists
+  [FAIL] category/gyms
+  [FAIL] category/salons
+  [FAIL] category/pharmacies
+  [FAIL] category/restaurants
+  [FAIL] merchant/001
+  [FAIL] merchant/002
+  [FAIL] merchant/003
+  [FAIL] merchant/004
+  [FAIL] merchant/005
+
+[96m[1m--- FULL EVALUATION ---[0m
+
+[92m[PASS][0m All contexts pushed
+
+[96m[1m--- SCORING COMPOSITIONS ---[0m
+
+[94m[INFO][0m Batch 1: 0 actions (636ms)
+[94m[INFO][0m Batch 2: 0 actions (629ms)
+[94m[INFO][0m Batch 3: 0 actions (718ms)
+[94m[INFO][0m Batch 4: 0 actions (648ms)
+[94m[INFO][0m Batch 5: 0 actions (664ms)

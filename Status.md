@@ -124,30 +124,46 @@ All remaining items are now enhancement-level, not blocker-level for a working c
 
 Current measured quality baseline from latest external runs:
 
-- Overall: `35/50 (70%)`
-- Specificity: `~7/10`
-- Category fit: `~8/10`
-- Merchant fit: `~8/10`
-- Decision quality: `~6/10`
-- Engagement: `~6-7/10`
+- Best recent run: `35/50 (70%)`
+- Typical recent band before aggressive rewrite: `34-35/50 (68-70%)`
+- Latest low outlier after over-constrained rewrite: `30/50 (60%)` (captured in `reports/run_20260503_185506.json`)
+- Current working baseline to optimize from: `34-35/50 (68-70%)`
+- Factor pattern in stable runs:
+  - specificity: `~7/10`
+  - category fit: `~8/10`
+  - merchant fit: `~8/10`
+  - decision quality: `~6/10`
+  - engagement: `~6-7/10`
+
+Latest outlier factor snapshot (`30/50` run):
+
+- specificity: `6.52`
+- category fit: `7.92`
+- merchant fit: `7.24`
+- decision quality: `5.72`
+- engagement: `5.68`
+- bottom-5 totals: `22, 24, 27, 27, 28`
 
 Current weakest family from score diagnostics:
 
 - `profile_perf` (lowest family average in `reports/run_*.json`)
 
-Planned next optimization sprint (to target ~`38-40/50`):
+Planned next optimization sprint (to target ~`38-40/50`, then push toward `80%`):
 
-- Add deterministic message-quality guardrail before send:
-  - enforce at least one numeric/context anchor
-  - enforce one explicit decision path for action-oriented triggers
-  - reduce generic “quick update” phrasing repetition
-- Strengthen weakest trigger families from judge output:
-  - `active_planning_intent`
-  - `profile_*`
-  - `review_*`
-  - `lead_*`
-  - `perf_dip` variants
-- Re-run external `full_evaluation`, compare dimension deltas, and iterate only on bottom-performing families.
+- Recovery gate:
+  - keep merchant-facing tone (avoid over-rigid “optimization speak”)
+  - recover immediately from `30/50` to `>=34/50`
+- Stabilization gate:
+  - run 3 consecutive validated loops and use average score as control baseline
+  - reject any run with incomplete scoring or `0 actions` batches
+- Improvement gate:
+  - patch only bottom-5 rows from score diagnostics (usually `profile_perf`)
+  - enforce one clear action + concrete payoff without template-like repetition
+  - measure per-family delta after each patch; avoid global rewrites
+- Target gate:
+  - first stable milestone: `>=36/50 (72%)`
+  - second stable milestone: `>=38/50 (76%)`
+  - final stretch to `80%` via targeted family-level upgrades only
 
 ### 2. Optional Intelligence Upgrade
 

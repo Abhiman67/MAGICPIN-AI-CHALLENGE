@@ -868,6 +868,23 @@ def force_tail_cta(body: str, cta: str, max_len: int) -> str:
     return f"{head}.{suffix}"
 
 
+def strip_competing_ctas(body: str, keep_cta: str) -> str:
+    ctas = [
+        "Reply 1 or 2.",
+        "Reply DRAFT.",
+        "Reply PLAN.",
+        "Reply CHECKLIST.",
+        "Reply PACK.",
+        "Reply SEND.",
+        "Reply GO.",
+    ]
+    cleaned = body
+    for cta in ctas:
+        if cta != keep_cta:
+            cleaned = cleaned.replace(cta, "")
+    return re.sub(r"\s+", " ", cleaned).strip()
+
+
 def action_token_for_family(family: str) -> str:
     mapping = {
         "profile": "CHECKLIST",
@@ -940,38 +957,38 @@ def concrete_next_step_line(kind: str, merchant: dict[str, Any], category: dict[
         if offer:
             details.append(f"push {offer.get('title')}")
         if details:
-            return "Quick win: " + "; ".join(details) + "."
+            return "Next step: " + "; ".join(details) + "."
         return f"Quick win: fix {merchant_name} in {locality} with one stronger post and one reply-ready CTA."
 
     if family == "profile":
         missing_fields = trigger_payload(trigger).get("missing_fields") or []
         if isinstance(missing_fields, list) and missing_fields:
             top_fields = ", ".join(str(x) for x in missing_fields[:3])
-            return f"Quick win: fill {top_fields}."
-        return f"Quick win: tighten {merchant_name}'s {locality} profile details and hours for {category_label}."
+            return f"Next step: fill {top_fields}."
+        return f"Next step: tighten {merchant_name}'s {locality} profile details and hours for {category_label}."
 
     if family == "review":
         review_count = trigger_payload(trigger).get("review_count") or trigger_payload(trigger).get("occurrences_30d")
         if review_count is not None:
-            return f"Quick win: address {review_count} recent review signal(s)."
-        return "Quick win: answer the dominant review theme first."
+            return f"Next step: address {review_count} recent review signal(s)."
+        return "Next step: answer the dominant review theme first."
 
     if family == "lead":
         missed = trigger_payload(trigger).get("missed_searches") or trigger_payload(trigger).get("missed_leads")
         if missed is not None:
-            return f"Quick win: recover ~{missed} missed lead(s) with a 7-day follow-up plan."
-        return "Quick win: convert the next wave of search intent into calls."
+            return f"Next step: recover ~{missed} missed lead(s) with a 7-day follow-up plan."
+        return "Next step: convert the next wave of search intent into calls."
 
     if family == "planning":
         topic = trigger_payload(trigger).get("intent_topic") or "this plan"
-        return f"Quick win: turn {topic} into the next action today."
+        return f"Next step: turn {topic} into the next action today."
 
     if family == "general":
         if ctr is not None and peer_ctr is not None:
-            return f"Quick win: CTR {ctr:.1%} vs peer {peer_ctr:.1%}; fix the biggest gap first."
+            return f"Next step: CTR {ctr:.1%} vs peer {peer_ctr:.1%}; fix the biggest gap first."
         if offer:
-            return f"Quick win: push {offer.get('title')} with one clearer CTA."
-        return f"Quick win: improve {merchant_name} in {locality} with one concrete next step for {category_label}."
+            return f"Next step: push {offer.get('title')} with one clearer CTA."
+        return f"Next step: improve {merchant_name} in {locality} with one concrete step for {category_label}."
 
     return ""
 
@@ -1011,16 +1028,15 @@ def enforce_first_touch_quality(
         concrete_step = concrete_next_step_line(kind, merchant, category, trigger)
         if concrete_step and concrete_step not in hardened:
             hardened += f" {concrete_step}"
-        if family in {"profile", "perf", "lead", "planning", "review"}:
-            required_cta = "Reply 1 or 2."
-        elif token:
+        if token:
             required_cta = f"Reply {token}."
 
-    # Robust anti-generic rewrite.
+    # Anti-generic rewrite while preserving a natural merchant-facing voice.
     if "quick update from vera" in normalize(hardened):
+        locality_label = merchant_locality(merchant) or merchant_city(merchant) or "your listing"
         hardened = re.sub(
             r"quick update from vera\.?",
-            "here’s the clearest next move",
+            f"quick update for {locality_label}",
             hardened,
             flags=re.IGNORECASE,
         )
@@ -1034,6 +1050,7 @@ def enforce_first_touch_quality(
 
     max_len = family_max_len.get(family, 380)
     if required_cta:
+        hardened = strip_competing_ctas(hardened, required_cta)
         return force_tail_cta(hardened, required_cta, max_len)
     return truncate(hardened, max_len)
 
@@ -1353,12 +1370,12 @@ def build_first_touch(
     else:
         locality_label = merchant_locality(merchant) or merchant_city(merchant) or "your listing"
         category_label = category.get("name") or category.get("slug") or "this category"
-        body = f"{salutation}, here’s the clearest next move for {locality_label} in {category_label}."
+        body = f"{salutation}, quick update for {locality_label} in {category_label}."
         if ctr is not None and peer_ctr is not None:
             body += f" CTR: {ctr:.1%} vs peer {peer_ctr:.1%}."
         if offer:
             body += f" Your active offer is {offer.get('title')}."
-        body += " Reply DRAFT and I’ll send the next step in 2 lines."
+        body += " Reply DRAFT and I’ll send the next step in 2 lines, ready to use."
         cta_text = "Reply DRAFT."
         template_params = [salutation, truncate(body, 120), cta_text]
 

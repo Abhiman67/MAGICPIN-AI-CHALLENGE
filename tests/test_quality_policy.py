@@ -66,7 +66,7 @@ class QualityPolicyTests(unittest.TestCase):
         )
         count = sum(1 for token in ["Reply 1 or 2.", "Reply DRAFT.", "Reply PLAN.", "Reply CHECKLIST.", "Reply PACK.", "Reply SEND.", "Reply GO."] if token in msg.body)
         self.assertLessEqual(count, 1)
-        self.assertIn("Reply 1 or 2.", msg.body)
+        self.assertIn("Reply DRAFT.", msg.body)
 
     def test_avoids_generic_opening(self) -> None:
         msg = bot.build_first_touch(
@@ -87,7 +87,7 @@ class QualityPolicyTests(unittest.TestCase):
                 "payload": {"category": "salons"},
             },
         )
-        self.assertTrue(msg.body.strip().endswith("Reply 1 or 2."))
+        self.assertTrue(msg.body.strip().endswith("Reply DRAFT."))
 
 
 if __name__ == "__main__":
