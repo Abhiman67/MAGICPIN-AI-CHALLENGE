@@ -1,0 +1,55 @@
+{
+  "average_score": 34,
+  "average_percent": 68,
+  "metric_averages": {
+    "specificity": 7.12,
+    "category_fit": 8.08,
+    "merchant_fit": 7.52,
+    "decision_quality": 6.28,
+    "engagement": 6.04,
+    "total": 35.04
+  },
+  "family_average_total": {
+    "other": 35,
+    "review": 35,
+    "profile_perf": 35,
+    "planning": 35.33
+  },
+  "bottom_5_messages": [
+    {
+      "total": 24,
+      "specificity": 5,
+      "decision_quality": 5,
+      "engagement": 4,
+      "message": "Karthik, customer follow-up is due for PowerHouse ..."
+    },
+    {
+      "total": 24,
+      "specificity": 4,
+      "decision_quality": 5,
+      "engagement": 4,
+      "message": "Padma, customer follow-up is due for Zen Yoga Stud..."
+    },
+    {
+      "total": 30,
+      "specificity": 6,
+      "decision_quality": 5,
+      "engagement": 4,
+      "message": "Dr. Meera, customer follow-up is due for Dr. Meera..."
+    },
+    {
+      "total": 32,
+      "specificity": 6,
+      "decision_quality": 5,
+      "engagement": 6,
+      "message": "Lakshmi, customer follow-up is due for Studio11 Fa..."
+    },
+    {
+      "total": 32,
+      "specificity": 6,
+      "decision_quality": 5,
+      "engagement": 6,
+      "message": "Suresh, here\u2019s a starter version for corporate_bul..."
+    }
+  ]
+}

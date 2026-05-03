@@ -1061,6 +1061,7 @@ def enforce_first_touch_quality(
     if "Context:" not in hardened:
         hardened += f" {context_anchor}"
     required_cta = ""
+    known_ctas = ["Reply 1 or 2.", "Reply DRAFT.", "Reply PLAN.", "Reply CHECKLIST.", "Reply PACK.", "Reply SEND.", "Reply GO."]
     if action_needed:
         normalized = normalize(hardened)
         if "reply " not in normalized and action_line:
@@ -1073,8 +1074,12 @@ def enforce_first_touch_quality(
         concrete_step = concrete_next_step_line(kind, merchant, category, trigger)
         if concrete_step and concrete_step not in hardened:
             hardened += f" {concrete_step}"
-        if token:
-            required_cta = "Reply 1 or 2." if token == "1 or 2" else f"Reply {token}."
+        token_cta = "Reply 1 or 2." if token == "1 or 2" else (f"Reply {token}." if token else "")
+        explicit = token_cta if token_cta and token_cta in hardened else next((cta for cta in known_ctas if cta in hardened), "")
+        if explicit:
+            required_cta = explicit
+        elif token:
+            required_cta = token_cta
 
     # Anti-generic rewrite while preserving a natural merchant-facing voice.
     if "quick update from vera" in normalize(hardened):
@@ -1229,28 +1234,71 @@ def build_first_touch(
         template_params = [customer_name, truncate(body, 120), cta_text]
 
     elif kind in {"recall_due", "customer_lapsed_soft", "customer_lapsed_hard", "appointment_tomorrow", "trial_followup", "chronic_refill_due", "wedding_package_followup"} and customer is None:
+        payload = trigger_payload(trigger)
         due_date = format_date(trigger_payload(trigger).get("due_date") or trigger_payload(trigger).get("next_due_date"))
         stock_out = format_date(trigger_payload(trigger).get("stock_runs_out_iso"))
         trial_date = format_date(trigger_payload(trigger).get("trial_date"))
         wedding_date = format_date(trigger_payload(trigger).get("wedding_date"))
         slots = trigger_payload(trigger).get("available_slots") or trigger_payload(trigger).get("next_session_options") or []
         slot_count = len(slots) if isinstance(slots, list) else 0
-        body = f"{salutation}, customer follow-up is due for {merchant.get('identity', {}).get('name', 'your account')}."
-        if kind == "recall_due" and due_date:
-            body += f" Recall due by {due_date}."
-        elif kind == "chronic_refill_due" and stock_out:
-            body += f" Refill stockout risk by {stock_out}."
-        elif kind == "trial_followup" and trial_date:
-            body += f" Trial follow-up pending since {trial_date}."
-        elif kind == "wedding_package_followup" and wedding_date:
-            body += f" Wedding timeline anchor: {wedding_date}."
+        category_label = category.get("slug") or "your category"
+        body = f"{salutation}, one customer follow-up is pending in {category_label}."
+
+        if kind == "recall_due":
+            service_due = str(payload.get("service_due", "recall")).replace("_", " ")
+            body = f"{salutation}, one {service_due} follow-up is pending for your dental pipeline."
+            if due_date:
+                body += f" Due by {due_date}."
+            if slot_count:
+                body += f" {slot_count} slot option(s) already available."
+            body += " Recovering this recall usually protects repeat visits."
         elif kind == "customer_lapsed_hard":
-            lapse_days = trigger_payload(trigger).get("days_since_last_visit")
+            lapse_days = payload.get("days_since_last_visit")
+            focus = str(payload.get("previous_focus", "member goal")).replace("_", " ")
+            months = payload.get("previous_membership_months")
+            body = f"{salutation}, one gym member is in hard-lapse state ({focus})."
             if isinstance(lapse_days, int):
-                body += f" Lapsed customer window: {lapse_days} day(s)."
-        if slot_count:
-            body += f" Available slot options in trigger: {slot_count}."
-        body += " Pick 1 for a ready customer message, or 2 for a 3-touch follow-up plan."
+                body += f" Inactive for {lapse_days} day(s)."
+            if isinstance(months, int):
+                body += f" Prior commitment: {months} month(s)."
+            body += " Fast reactivation now improves comeback probability."
+        elif kind == "trial_followup":
+            body = f"{salutation}, one trial lead in your fitness pipeline is awaiting follow-up."
+            if trial_date:
+                body += f" Trial date: {trial_date}."
+            if slot_count:
+                body += f" {slot_count} next-session option(s) already listed."
+            body += " Early follow-up usually converts better than delayed outreach."
+        elif kind == "chronic_refill_due":
+            molecules = payload.get("molecule_list") or []
+            molecule_count = len(molecules) if isinstance(molecules, list) else 0
+            body = f"{salutation}, one chronic refill customer is at stockout risk."
+            if molecule_count:
+                body += f" Refill basket: {molecule_count} molecule(s)."
+            if stock_out:
+                body += f" Risk date: {stock_out}."
+            body += " Timely reminder protects refill continuity and trust."
+        elif kind == "wedding_package_followup":
+            body = f"{salutation}, one bridal lead follow-up is due in your salon pipeline."
+            if wedding_date:
+                body += f" Wedding date: {wedding_date}."
+            if trial_date:
+                body += f" Trial date: {trial_date}."
+            body += " Prompt follow-up improves package conversion."
+        elif kind == "customer_lapsed_soft":
+            body = f"{salutation}, one customer is entering soft-lapse stage in {category_label}."
+            body += " A timely touch now can prevent hard-lapse."
+        elif kind == "appointment_tomorrow":
+            body = f"{salutation}, one appointment reminder is due for tomorrow in {category_label}."
+            if slot_count:
+                body += f" Slot options tracked: {slot_count}."
+            body += " A reminder now reduces no-show risk."
+
+        if offer:
+            body += f" Suggested hook: {offer.get('title')}."
+        if ctr is not None and peer_ctr is not None:
+            body += f" Account context: CTR {ctr:.1%} vs peer {peer_ctr:.1%}."
+        body += " Pick 1 for a ready customer message (today), or 2 for a 3-touch follow-up cadence (today/+2d/+5d)."
         body += " Reply 1 or 2."
         cta_text = "Reply 1 or 2."
         template_params = [salutation, truncate(body, 120), cta_text]
@@ -1515,8 +1563,9 @@ def build_first_touch(
         if offer:
             body += f" I’ve anchored it to {offer.get('title')}."
         body += f" Do this now: {topic}."
-        body += " Pick 1 for short version, or 2 for detailed version."
-        body += " Reply 1 or 2 and I’ll send it ready-to-use."
+        body += " Expected outcome: faster execution in the next 24 hours."
+        body += " Pick 1 for a short execution script, or 2 for a 7-day detailed version."
+        body += " Reply 1 or 2."
         cta_text = "Reply 1 or 2."
         template_params = [salutation, truncate(body, 120), cta_text]
 
@@ -1559,7 +1608,8 @@ def build_first_touch(
     if language_mix and customer is None and category_slug in {"salons", "restaurants", "gyms", "pharmacies"}:
         body = hinglish_phrase(body, True)
 
-    body = enforce_first_touch_quality(body, kind, scope, merchant, category, trigger)
+    scope_for_quality = "merchant" if customer is None and scope == "customer" else scope
+    body = enforce_first_touch_quality(body, kind, scope_for_quality, merchant, category, trigger)
     return ComposedMessage(
         body=body,
         cta=cta_for_kind(kind, info_only=info_only),
