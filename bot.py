@@ -868,6 +868,39 @@ def force_tail_cta(body: str, cta: str, max_len: int) -> str:
     return f"{head}.{suffix}"
 
 
+def hard_rewrite_profile_perf(
+    merchant: dict[str, Any],
+    category: dict[str, Any],
+    trigger: dict[str, Any],
+) -> str:
+    sal = merchant_salutation(merchant, merchant.get("category_slug", "generic"))
+    locality = merchant_locality(merchant) or merchant_city(merchant) or "your listing"
+    ctr = merchant_ctr(merchant)
+    peer = category_peer_ctr(category)
+    delta = safe_get(merchant, "performance", "delta_7d", default={}) or {}
+    views = delta.get("views_pct")
+    calls = delta.get("calls_pct")
+    parts = [f"{sal}, recovery signal on {locality}."]
+    metric_bits = []
+    if isinstance(views, (int, float)):
+        metric_bits.append(f"views {views:+.0%}")
+    if isinstance(calls, (int, float)):
+        metric_bits.append(f"calls {calls:+.0%}")
+    if metric_bits:
+        parts.append("Signal: " + ", ".join(metric_bits) + ".")
+    if isinstance(ctr, (int, float)) and isinstance(peer, (int, float)):
+        parts.append(f"CTR: {ctr:.1%} vs peer {peer:.1%}.")
+    missed = estimate_missed_leads(merchant)
+    if missed is not None:
+        parts.append(f"Impact now: ~{missed} missed call-leads/week.")
+    offer = active_offer(merchant)
+    if offer and offer.get("title"):
+        parts.append(f"Best offer to push: {offer.get('title')}.")
+    parts.append("Reply 1 for top-3 fixes, or 2 for a 7-day recovery plan.")
+    parts.append("I’ll send it in 3 bullets.")
+    return " ".join(parts)
+
+
 def action_token_for_family(family: str) -> str:
     mapping = {
         "profile": "CHECKLIST",
@@ -959,6 +992,11 @@ def enforce_first_touch_quality(
             hardened,
             flags=re.IGNORECASE,
         )
+    # Hard guard for lowest-performing family: if generic phrasing remains,
+    # replace with strict profile/perf recovery pattern.
+    if family in {"profile", "perf"} and "quick update from vera" in normalize(hardened):
+        hardened = hard_rewrite_profile_perf(merchant, category, trigger)
+        required_cta = "Reply 1 or 2."
 
     # Family shape constraints: short, action-forward, and single decision.
     family_max_len = {"profile": 360, "review": 360, "lead": 360, "planning": 340, "perf": 360, "general": 380}

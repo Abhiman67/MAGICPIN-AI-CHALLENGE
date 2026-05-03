@@ -17,7 +17,7 @@
 
 [96m[1m--- WARMUP ---[0m
 
-[92m[PASS][0m healthz (609ms)
+[92m[PASS][0m healthz (533ms)
 [92m[PASS][0m metadata — Team: Team Vera, Model: rules-based composer
 
 [96m[1m--- CONTEXT PUSH ---[0m
