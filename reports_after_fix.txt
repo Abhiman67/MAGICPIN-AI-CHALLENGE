@@ -1,0 +1,310 @@
+
+[95m[1m======================================================================[0m
+[95m[1m                  magicpin AI Challenge — LLM Judge                   [0m
+[95m[1m======================================================================[0m
+
+[94m[INFO][0m LLM Provider: OpenRouter (openai/gpt-4o-mini)
+[94m[INFO][0m Testing LLM connection...
+[92m[PASS][0m LLM connected successfully
+
+[95m[1m======================================================================[0m
+[95m[1m                     LLM JUDGE — FULL_EVALUATION                      [0m
+[95m[1m======================================================================[0m
+
+[94m[INFO][0m Bot: https://magicpin-ai-challenge-production.up.railway.app
+[94m[INFO][0m LLM: OpenRouter (openai/gpt-4o-mini)
+[94m[INFO][0m Loaded: 5 categories, 10 merchants, 25 triggers
+
+[96m[1m--- WARMUP ---[0m
+
+[92m[PASS][0m healthz (729ms)
+[92m[PASS][0m metadata — Team: Team Vera, Model: rules-based composer
+
+[96m[1m--- CONTEXT PUSH ---[0m
+
+  [PASS] category/dentists
+  [PASS] category/gyms
+  [PASS] category/salons
+  [PASS] category/pharmacies
+  [PASS] category/restaurants
+  [PASS] merchant/001
+  [PASS] merchant/002
+  [PASS] merchant/003
+  [PASS] merchant/004
+  [PASS] merchant/005
+
+[96m[1m--- FULL EVALUATION ---[0m
+
+[92m[PASS][0m All contexts pushed
+
+[96m[1m--- SCORING COMPOSITIONS ---[0m
+
+[94m[INFO][0m Batch 1: 5 actions (847ms)
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Dr. Bharat, your Pro plan renewal is coming up — 1..."
+  Specificity            [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Merchant Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Decision Quality       [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Engagement             [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+
+  [1mTOTAL: 41/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Dr. Bharat, quick recovery check for your Andheri ..."
+  Specificity            [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Merchant Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Decision Quality       [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Engagement             [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+
+  [1mTOTAL: 41/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Dr. Meera, here is today’s highest-impact move for..."
+  Specificity            [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Category Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Merchant Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Decision Quality       [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+
+  [1mTOTAL: 38/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Dr. Meera, here is today’s highest-impact move for..."
+  Specificity            [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Decision Quality       [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Engagement             [[93m████████[2m░░░░░░░░░░░░[0m] [93m 4/10[0m
+
+  [1mTOTAL: 30/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Dr. Meera, JIDA's Oct issue landed. One item relev..."
+  Specificity            [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Merchant Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Decision Quality       [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Engagement             [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+
+  [1mTOTAL: 41/50[0m
+[94m[INFO][0m Batch 2: 5 actions (1563ms)
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Suresh, quick heads-up on DC vs MI. Your active of..."
+  Specificity            [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Merchant Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Decision Quality       [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Engagement             [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+
+  [1mTOTAL: 37/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Anjali, here is today’s highest-impact move for Au..."
+  Specificity            [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Category Fit           [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Merchant Fit           [[93m████████[2m░░░░░░░░░░░░[0m] [93m 4/10[0m
+  Decision Quality       [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Engagement             [[93m████████[2m░░░░░░░░░░░░[0m] [93m 4/10[0m
+
+  [1mTOTAL: 24/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Lakshmi, here is today’s highest-impact move for K..."
+  Specificity            [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Decision Quality       [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+
+  [1mTOTAL: 32/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Lakshmi, quick question: what service is most aske..."
+  Specificity            [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Category Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Merchant Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Decision Quality       [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Engagement             [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+
+  [1mTOTAL: 40/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Lakshmi, quick heads-up on Diwali. Your active off..."
+  Specificity            [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Merchant Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Decision Quality       [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Engagement             [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+
+  [1mTOTAL: 37/50[0m
+[94m[INFO][0m Batch 3: 5 actions (643ms)
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Suresh, here’s a starter version for corporate_bul..."
+  Specificity            [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Merchant Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Decision Quality       [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Engagement             [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+
+  [1mTOTAL: 37/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Suresh, 4 reviews are pointing at delivery late. P..."
+  Specificity            [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Merchant Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Decision Quality       [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Engagement             [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+
+  [1mTOTAL: 39/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Karthik, here is today’s highest-impact move for H..."
+  Specificity            [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Merchant Fit           [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Decision Quality       [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Engagement             [[93m████████[2m░░░░░░░░░░░░[0m] [93m 4/10[0m
+
+  [1mTOTAL: 28/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Suresh, nice milestone on review_count — 145 towar..."
+  Specificity            [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Category Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Decision Quality       [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+
+  [1mTOTAL: 38/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Karthik, your HSR Layout listing needs a recovery ..."
+  Specificity            [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Merchant Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Decision Quality       [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Engagement             [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+
+  [1mTOTAL: 41/50[0m
+[94m[INFO][0m Batch 4: 5 actions (691ms)
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Ramesh, here is today’s highest-impact move for Ma..."
+  Specificity            [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Decision Quality       [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+
+  [1mTOTAL: 32/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Padma, here’s a starter version for kids_yoga_summ..."
+  Specificity            [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Category Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Merchant Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Decision Quality       [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Engagement             [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+
+  [1mTOTAL: 37/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Ramesh, here is today’s highest-impact move for Ma..."
+  Specificity            [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Merchant Fit           [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Decision Quality       [[93m████████[2m░░░░░░░░░░░░[0m] [93m 4/10[0m
+  Engagement             [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+
+  [1mTOTAL: 28/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Padma, here is today’s highest-impact move for Myl..."
+  Specificity            [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Decision Quality       [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+
+  [1mTOTAL: 32/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Ramesh, here is today’s highest-impact move for Ma..."
+  Specificity            [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Merchant Fit           [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Decision Quality       [[93m████████[2m░░░░░░░░░░░░[0m] [93m 4/10[0m
+  Engagement             [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+
+  [1mTOTAL: 28/50[0m
+[94m[INFO][0m Batch 5: 5 actions (672ms)
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Vikas, here is today’s highest-impact move for Gom..."
+  Specificity            [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Decision Quality       [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+
+  [1mTOTAL: 32/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Anjali, here is today’s highest-impact move for Au..."
+  Specificity            [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Category Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Merchant Fit           [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Decision Quality       [[93m██████████[2m░░░░░░░░░░[0m] [93m 5/10[0m
+  Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+
+  [1mTOTAL: 32/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Dr. Meera, Smile Studio just opened nearby — about..."
+  Specificity            [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Category Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Merchant Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Decision Quality       [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Engagement             [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+
+  [1mTOTAL: 37/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Dr. Meera, here is today’s highest-impact move for..."
+  Specificity            [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Category Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Merchant Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Decision Quality       [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+
+  [1mTOTAL: 38/50[0m
+[35m[LLM][0m Analyzing message...
+
+[96mMessage:[0m "Padma, your Mylapore listing has momentum right no..."
+  Specificity            [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Category Fit           [[92m██████████████████[2m░░[0m] [92m 9/10[0m
+  Merchant Fit           [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Decision Quality       [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Engagement             [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+
+  [1mTOTAL: 38/50[0m
+
+[96m[1m--- FINAL SUMMARY ---[0m
+
+[94m[INFO][0m Messages scored: 25
+
+  Avg Specificity        [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Avg Category Fit       [[92m████████████████[2m░░░░[0m] [92m 8/10[0m
+  Avg Merchant Fit       [[92m██████████████[2m░░░░░░[0m] [92m 7/10[0m
+  Avg Decision Quality   [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+  Avg Engagement         [[93m████████████[2m░░░░░░░░[0m] [93m 6/10[0m
+
+[1m  AVERAGE SCORE: 34/50 (68%)[0m
+
+  [93mGOOD[0m

@@ -917,6 +917,8 @@ def estimate_missed_leads(merchant: dict[str, Any]) -> int | None:
 def concrete_next_step_line(kind: str, merchant: dict[str, Any], category: dict[str, Any], trigger: dict[str, Any]) -> str:
     family = trigger_family(kind)
     locality = merchant_locality(merchant) or merchant_city(merchant) or "your listing"
+    category_label = category.get("name") or category.get("slug") or "this category"
+    merchant_name = merchant.get("identity", {}).get("name", "your business")
     offer = active_offer(merchant)
     ctr = merchant_ctr(merchant)
     peer_ctr = category_peer_ctr(category)
@@ -938,38 +940,38 @@ def concrete_next_step_line(kind: str, merchant: dict[str, Any], category: dict[
         if offer:
             details.append(f"push {offer.get('title')}")
         if details:
-            return "Focus: " + "; ".join(details) + "."
-        return f"Focus: fix {locality} with one stronger post and one reply-ready CTA."
+            return "Quick win: " + "; ".join(details) + "."
+        return f"Quick win: fix {merchant_name} in {locality} with one stronger post and one reply-ready CTA."
 
     if family == "profile":
         missing_fields = trigger_payload(trigger).get("missing_fields") or []
         if isinstance(missing_fields, list) and missing_fields:
             top_fields = ", ".join(str(x) for x in missing_fields[:3])
-            return f"Focus: fill {top_fields}."
-        return f"Focus: tighten {locality} profile details and hours."
+            return f"Quick win: fill {top_fields}."
+        return f"Quick win: tighten {merchant_name}'s {locality} profile details and hours for {category_label}."
 
     if family == "review":
         review_count = trigger_payload(trigger).get("review_count") or trigger_payload(trigger).get("occurrences_30d")
         if review_count is not None:
-            return f"Focus: address {review_count} recent review signal(s)."
-        return "Focus: answer the dominant review theme first."
+            return f"Quick win: address {review_count} recent review signal(s)."
+        return "Quick win: answer the dominant review theme first."
 
     if family == "lead":
         missed = trigger_payload(trigger).get("missed_searches") or trigger_payload(trigger).get("missed_leads")
         if missed is not None:
-            return f"Focus: recover ~{missed} missed lead(s) with a 7-day follow-up plan."
-        return "Focus: convert the next wave of search intent into calls."
+            return f"Quick win: recover ~{missed} missed lead(s) with a 7-day follow-up plan."
+        return "Quick win: convert the next wave of search intent into calls."
 
     if family == "planning":
         topic = trigger_payload(trigger).get("intent_topic") or "this plan"
-        return f"Focus: turn {topic} into the next action today."
+        return f"Quick win: turn {topic} into the next action today."
 
     if family == "general":
         if ctr is not None and peer_ctr is not None:
-            return f"Focus: CTR {ctr:.1%} vs peer {peer_ctr:.1%}; fix the biggest gap first."
+            return f"Quick win: CTR {ctr:.1%} vs peer {peer_ctr:.1%}; fix the biggest gap first."
         if offer:
-            return f"Focus: push {offer.get('title')} with one clearer CTA."
-        return f"Focus: improve {locality} with one concrete next step."
+            return f"Quick win: push {offer.get('title')} with one clearer CTA."
+        return f"Quick win: improve {merchant_name} in {locality} with one concrete next step for {category_label}."
 
     return ""
 
@@ -1331,7 +1333,7 @@ def build_first_touch(
             body += f" You said: “{truncate(merchant_last_message, 80)}”."
         if offer:
             body += f" I’ve anchored it to {offer.get('title')}."
-        body += f" Focus: {topic}."
+        body += f" Do this now: {topic}."
         body += " Pick 1 for short version, or 2 for detailed version."
         body += " Reply 1 or 2 and I’ll send it ready-to-use."
         cta_text = "Reply 1 or 2."
@@ -1350,7 +1352,8 @@ def build_first_touch(
 
     else:
         locality_label = merchant_locality(merchant) or merchant_city(merchant) or "your listing"
-        body = f"{salutation}, here’s the clearest next move for {locality_label}."
+        category_label = category.get("name") or category.get("slug") or "this category"
+        body = f"{salutation}, here’s the clearest next move for {locality_label} in {category_label}."
         if ctr is not None and peer_ctr is not None:
             body += f" CTR: {ctr:.1%} vs peer {peer_ctr:.1%}."
         if offer:
