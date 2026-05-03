@@ -1120,6 +1120,7 @@ def build_first_touch(
     hook = ""
     cta_text = ""
     body = ""
+    suppress_auto_enrichment = False
     template_name = build_template_name(kind)
     template_params: list[str] = []
     sup_key = trigger.get("suppression_key") or f"{kind}:{merchant.get('merchant_id', 'merchant')}"
@@ -1241,12 +1242,14 @@ def build_first_touch(
         wedding_date = format_date(trigger_payload(trigger).get("wedding_date"))
         slots = trigger_payload(trigger).get("available_slots") or trigger_payload(trigger).get("next_session_options") or []
         slot_count = len(slots) if isinstance(slots, list) else 0
+        merchant_label = merchant.get("identity", {}).get("name", "your business")
+        locality_label = merchant_locality(merchant) or merchant_city(merchant) or "your area"
         category_label = category.get("slug") or "your category"
-        body = f"{salutation}, one customer follow-up is pending in {category_label}."
+        body = f"{salutation}, one customer follow-up is pending for {merchant_label} in {locality_label} ({category_label})."
 
         if kind == "recall_due":
             service_due = str(payload.get("service_due", "recall")).replace("_", " ")
-            body = f"{salutation}, one {service_due} follow-up is pending for your dental pipeline."
+            body = f"{salutation}, one {service_due} follow-up is pending for {merchant_label} in {locality_label}."
             if due_date:
                 body += f" Due by {due_date}."
             if slot_count:
@@ -1256,14 +1259,14 @@ def build_first_touch(
             lapse_days = payload.get("days_since_last_visit")
             focus = str(payload.get("previous_focus", "member goal")).replace("_", " ")
             months = payload.get("previous_membership_months")
-            body = f"{salutation}, one gym member is in hard-lapse state ({focus})."
+            body = f"{salutation}, {merchant_label} has one gym member in hard-lapse state ({focus})."
             if isinstance(lapse_days, int):
                 body += f" Inactive for {lapse_days} day(s)."
             if isinstance(months, int):
                 body += f" Prior commitment: {months} month(s)."
             body += " Fast reactivation now improves comeback probability."
         elif kind == "trial_followup":
-            body = f"{salutation}, one trial lead in your fitness pipeline is awaiting follow-up."
+            body = f"{salutation}, {merchant_label} has one trial lead awaiting follow-up."
             if trial_date:
                 body += f" Trial date: {trial_date}."
             if slot_count:
@@ -1272,14 +1275,14 @@ def build_first_touch(
         elif kind == "chronic_refill_due":
             molecules = payload.get("molecule_list") or []
             molecule_count = len(molecules) if isinstance(molecules, list) else 0
-            body = f"{salutation}, one chronic refill customer is at stockout risk."
+            body = f"{salutation}, {merchant_label} has one chronic refill customer at stockout risk."
             if molecule_count:
                 body += f" Refill basket: {molecule_count} molecule(s)."
             if stock_out:
                 body += f" Risk date: {stock_out}."
             body += " Timely reminder protects refill continuity and trust."
         elif kind == "wedding_package_followup":
-            body = f"{salutation}, one bridal lead follow-up is due in your salon pipeline."
+            body = f"{salutation}, {merchant_label} has one bridal lead follow-up due."
             if wedding_date:
                 body += f" Wedding date: {wedding_date}."
             if trial_date:
@@ -1294,14 +1297,15 @@ def build_first_touch(
                 body += f" Slot options tracked: {slot_count}."
             body += " A reminder now reduces no-show risk."
 
-        if offer:
-            body += f" Suggested hook: {offer.get('title')}."
         if ctr is not None and peer_ctr is not None:
-            body += f" Account context: CTR {ctr:.1%} vs peer {peer_ctr:.1%}."
-        body += " Pick 1 for a ready customer message (today), or 2 for a 3-touch follow-up cadence (today/+2d/+5d)."
+            body += f" Context: CTR {ctr:.1%} vs peer {peer_ctr:.1%}."
+        if offer:
+            body += f" Hook: {offer.get('title')}."
+        body += " Pick 1 for a ready customer message today, or 2 for a 3-touch cadence (today/+2d/+5d)."
         body += " Reply 1 or 2."
         cta_text = "Reply 1 or 2."
         template_params = [salutation, truncate(body, 120), cta_text]
+        suppress_auto_enrichment = True
 
     elif kind in {"perf_dip", "seasonal_perf_dip"}:
         delta_7d = safe_get(merchant, "performance", "delta_7d", default={}) or {}
@@ -1446,14 +1450,17 @@ def build_first_touch(
         body += " Reply 1 or 2."
         cta_text = "Reply 1 or 2."
         template_params = [salutation, truncate(body, 120), cta_text]
+        suppress_auto_enrichment = True
 
     elif kind == "curious_ask_due":
-        body = f"{salutation}, quick question: what service is most asked for this week at {merchant.get('identity', {}).get('name', 'your business')}?"
+        body = f"{salutation}, quick demand check for {merchant.get('identity', {}).get('name', 'your business')}: which service is asked most this week?"
         if offer:
-            body += f" I can turn {offer.get('title')} into a Google post and a 4-line WhatsApp reply."
-        body += " Takes 5 min."
-        cta_text = "What’s in demand this week?"
+            body += f" I can turn {offer.get('title')} into a post + WhatsApp reply."
+        body += " Pick 1 for a quick post draft, or 2 for a 7-day promo plan."
+        body += " Reply 1 or 2."
+        cta_text = "Reply 1 or 2."
         template_params = [salutation, truncate(body, 120), cta_text]
+        suppress_auto_enrichment = True
 
     elif kind == "review_theme_emerged":
         theme = trigger_payload(trigger).get("theme") or first(merchant.get("review_themes", []), {}).get("theme", "a review theme")
@@ -1557,17 +1564,19 @@ def build_first_touch(
     elif kind == "active_planning_intent":
         topic = trigger_payload(trigger).get("intent_topic") or "your plan"
         merchant_last_message = trigger_payload(trigger).get("merchant_last_message", "")
-        body = f"{salutation}, here’s a starter version for {topic}."
+        body = f"{salutation}, plan draft ready for {topic}."
         if merchant_last_message:
-            body += f" You said: “{truncate(merchant_last_message, 80)}”."
+            body += f" Your note: “{truncate(merchant_last_message, 60)}”."
         if offer:
             body += f" I’ve anchored it to {offer.get('title')}."
-        body += f" Do this now: {topic}."
-        body += " Expected outcome: faster execution in the next 24 hours."
+        location_tag = merchant_locality(merchant) or merchant_city(merchant) or "local"
+        body += f" Context: {location_tag}."
+        body += " Outcome target: execute first step in 24 hours."
         body += " Pick 1 for a short execution script, or 2 for a 7-day detailed version."
         body += " Reply 1 or 2."
         cta_text = "Reply 1 or 2."
         template_params = [salutation, truncate(body, 120), cta_text]
+        suppress_auto_enrichment = True
 
     elif kind == "milestone_reached":
         metric = trigger_payload(trigger).get("metric") or "a milestone"
@@ -1597,10 +1606,10 @@ def build_first_touch(
         template_params = [salutation, truncate(body, 120), cta_text]
 
     specificity_line = trigger_specificity_line(kind, merchant, category, trigger)
-    if specificity_line and specificity_line not in body:
+    if not suppress_auto_enrichment and specificity_line and specificity_line not in body:
         body += f" {specificity_line}"
     info_only = kind in {"milestone_reached"}
-    if customer is None and not info_only:
+    if customer is None and not info_only and not suppress_auto_enrichment:
         action_line = trigger_action_line(kind, merchant, trigger)
         if action_line and action_line not in body:
             body += f" {action_line}"
@@ -1608,7 +1617,7 @@ def build_first_touch(
     if language_mix and customer is None and category_slug in {"salons", "restaurants", "gyms", "pharmacies"}:
         body = hinglish_phrase(body, True)
 
-    scope_for_quality = "merchant" if customer is None and scope == "customer" else scope
+    scope_for_quality = "customer" if suppress_auto_enrichment else ("merchant" if customer is None and scope == "customer" else scope)
     body = enforce_first_touch_quality(body, kind, scope_for_quality, merchant, category, trigger)
     return ComposedMessage(
         body=body,
