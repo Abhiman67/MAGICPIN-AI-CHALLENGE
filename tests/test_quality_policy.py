@@ -87,7 +87,7 @@ class QualityPolicyTests(unittest.TestCase):
                 "payload": {"category": "salons"},
             },
         )
-        self.assertTrue(msg.body.strip().endswith("Reply DRAFT."))
+        self.assertTrue(msg.body.strip().endswith("Reply 1 or 2."))
 
 
 if __name__ == "__main__":

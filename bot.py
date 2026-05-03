@@ -568,7 +568,7 @@ def trigger_action_line(kind: str, merchant: dict[str, Any], trigger: dict[str, 
     offer = active_offer(merchant)
     if kind in {"perf_dip", "seasonal_perf_dip", "perf_spike", "festival_upcoming", "ipl_match_today", "local_news_event"}:
         offer_title = offer.get("title") if offer else "your top offer"
-        return f"Reply DRAFT and I’ll send 1 post + 1 reply script for {offer_title}."
+        return f"Reply 1 for one quick script, or 2 for a 7-day plan around {offer_title}."
     if kind in {"review_sentiment_alert", "review_response_draft", "review_theme_emerged"}:
         return "Reply DRAFT and I’ll send 3 response templates by tone: apology, neutral, and assertive."
     if kind in {"profile_incomplete", "profile_hours_missing", "profile_attributes_missing", "seo_visibility_gap"}:
@@ -582,7 +582,7 @@ def trigger_action_line(kind: str, merchant: dict[str, Any], trigger: dict[str, 
     if kind in {"active_planning_intent"}:
         topic = trigger_payload(trigger).get("intent_topic") or "this plan"
         return f"Reply GO and I’ll send a ready-to-send draft for {topic}."
-    return "Reply DRAFT and I’ll prepare the exact next message."
+    return "Reply 1 for a quick fix, or 2 for a 7-day plan."
 
 
 def category_digest_item(category: dict[str, Any], trigger: dict[str, Any]) -> dict[str, Any] | None:
@@ -891,10 +891,10 @@ def action_token_for_family(family: str) -> str:
         "review": "DRAFT",
         "lead": "PLAN",
         "planning": "GO",
-        "perf": "DRAFT",
-        "general": "DRAFT",
+        "perf": "1 or 2",
+        "general": "1 or 2",
     }
-    return mapping.get(family, "DRAFT")
+    return mapping.get(family, "1 or 2")
 
 
 def decision_closer(kind: str, family: str, customer: dict[str, Any] | None = None) -> str:
@@ -907,10 +907,10 @@ def decision_closer(kind: str, family: str, customer: dict[str, Any] | None = No
     if family == "planning":
         return "Reply GO and I’ll turn it into the next action."
     if family == "perf":
-        return "Reply DRAFT and I’ll give you the one best move."
+        return "Reply 1 for the quick fix, or 2 for the 7-day plan."
     if kind in {"recall_due", "customer_lapsed_soft", "appointment_tomorrow", "trial_followup", "chronic_refill_due"} and customer:
         return f"Reply YES and I’ll send the note to {customer_salutation(customer)}."
-    return "Reply DRAFT for the ready version, or SUMMARY for the short version."
+    return "Reply 1 for the quick fix, or 2 for the 7-day plan."
 
 
 def profile_perf_variant_key(merchant: dict[str, Any], trigger: dict[str, Any]) -> int:
@@ -1029,7 +1029,7 @@ def enforce_first_touch_quality(
         if concrete_step and concrete_step not in hardened:
             hardened += f" {concrete_step}"
         if token:
-            required_cta = f"Reply {token}."
+            required_cta = "Reply 1 or 2." if token == "1 or 2" else f"Reply {token}."
 
     # Anti-generic rewrite while preserving a natural merchant-facing voice.
     if "quick update from vera" in normalize(hardened):
@@ -1200,9 +1200,9 @@ def build_first_touch(
         lever = persuasion_line(kind, merchant, trigger)
         if lever:
             body += f" {lever}"
-        body += " Reply CHECKLIST and I’ll send the 3 fixes in priority order."
-        body += " I’ll keep it ready to post."
-        cta_text = "Reply CHECKLIST."
+        body += " Pick 1 for one quick fix, or 2 for a 7-day recovery plan."
+        body += " Reply 1 or 2."
+        cta_text = "Reply 1 or 2."
         template_params = [salutation, truncate(body, 120), cta_text]
 
     elif kind == "perf_spike":
@@ -1217,9 +1217,9 @@ def build_first_touch(
             body += f" Calls are up {calls_pct:+.0%}."
         if offer:
             body += f" Your active offer {offer.get('title')} is a good candidate to push."
-        body += " Reply DRAFT and I’ll send a conversion post plus a retention version."
-        body += " I’ll keep the copy in 3 bullets."
-        cta_text = "Reply DRAFT."
+        body += " Pick 1 for a conversion post now, or 2 for a 7-day momentum plan."
+        body += " Reply 1 or 2."
+        cta_text = "Reply 1 or 2."
         template_params = [salutation, truncate(body, 120), cta_text]
 
     elif kind == "renewal_due":
@@ -1370,13 +1370,17 @@ def build_first_touch(
     else:
         locality_label = merchant_locality(merchant) or merchant_city(merchant) or "your listing"
         category_label = category.get("name") or category.get("slug") or "this category"
-        body = f"{salutation}, quick update for {locality_label} in {category_label}."
+        merchant_name = merchant.get("identity", {}).get("name", "your business")
+        body = f"{salutation}, quick update for {merchant_name} in {locality_label} ({category_label})."
         if ctr is not None and peer_ctr is not None:
             body += f" CTR: {ctr:.1%} vs peer {peer_ctr:.1%}."
+        if signal_line:
+            body += f" Signal: {signal_line}."
         if offer:
             body += f" Your active offer is {offer.get('title')}."
-        body += " Reply DRAFT and I’ll send the next step in 2 lines, ready to use."
-        cta_text = "Reply DRAFT."
+        body += " Pick 1 for a quick fix, or 2 for a 7-day action plan."
+        body += " Reply 1 or 2."
+        cta_text = "Reply 1 or 2."
         template_params = [salutation, truncate(body, 120), cta_text]
 
     specificity_line = trigger_specificity_line(kind, merchant, category, trigger)
