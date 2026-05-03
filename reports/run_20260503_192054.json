@@ -1,0 +1,54 @@
+{
+  "average_score": 32,
+  "average_percent": 64,
+  "metric_averages": {
+    "specificity": 6.68,
+    "category_fit": 8.12,
+    "merchant_fit": 7.4,
+    "decision_quality": 5.76,
+    "engagement": 6.12,
+    "total": 34.08
+  },
+  "family_average_total": {
+    "other": 33.8,
+    "planning": 34,
+    "review": 37
+  },
+  "bottom_5_messages": [
+    {
+      "total": 28,
+      "specificity": 5,
+      "decision_quality": 4,
+      "engagement": 5,
+      "message": "Ramesh, quick update for Apollo Health Plus Pharma..."
+    },
+    {
+      "total": 29,
+      "specificity": 5,
+      "decision_quality": 5,
+      "engagement": 6,
+      "message": "Anjali, quick update for Glamour Lounge Spa & Salo..."
+    },
+    {
+      "total": 30,
+      "specificity": 6,
+      "decision_quality": 5,
+      "engagement": 4,
+      "message": "Dr. Meera, quick update for Dr. Meera's Dental Cli..."
+    },
+    {
+      "total": 32,
+      "specificity": 6,
+      "decision_quality": 5,
+      "engagement": 6,
+      "message": "Dr. Meera, quick update for Dr. Meera's Dental Cli..."
+    },
+    {
+      "total": 32,
+      "specificity": 6,
+      "decision_quality": 5,
+      "engagement": 6,
+      "message": "Lakshmi, quick update for Studio11 Family Salon in..."
+    }
+  ]
+}

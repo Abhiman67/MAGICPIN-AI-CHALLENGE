@@ -530,6 +530,16 @@ def persuasion_line(kind: str, merchant: dict[str, Any], trigger: dict[str, Any]
         return "Completing these fields usually improves listing trust and click-through."
     if kind in {"festival_upcoming", "ipl_match_today"}:
         return "Timing this before the window closes usually performs better."
+    if kind in {"regulation_change", "supply_alert"}:
+        return "Acting early reduces compliance and reputation risk."
+    if kind in {"winback_eligible", "dormant_with_vera"}:
+        return "A reactivation nudge this week is more likely to recover attention."
+    if kind in {"gbp_unverified"}:
+        return "Verification unlocks trust signals that usually improve conversion."
+    if kind in {"category_seasonal"}:
+        return "Aligning offer and copy to demand shift usually lifts near-term conversion."
+    if kind in {"cde_opportunity"}:
+        return "Using this as authority content can improve patient trust and response."
     return ""
 
 
@@ -559,6 +569,26 @@ def trigger_specificity_line(kind: str, merchant: dict[str, Any], category: dict
         days_remaining = merchant_days_remaining(merchant)
         if days_remaining is not None:
             return f"Renewal window remaining: {days_remaining} day(s)."
+    if kind == "regulation_change":
+        deadline = payload.get("deadline_iso")
+        if deadline:
+            return f"Compliance deadline in trigger: {deadline}."
+    if kind == "gbp_unverified":
+        uplift = payload.get("estimated_uplift_pct")
+        if isinstance(uplift, (int, float)):
+            return f"Estimated verification uplift: {uplift:.0%}."
+    if kind == "supply_alert":
+        batches = payload.get("affected_batches") or []
+        if isinstance(batches, list) and batches:
+            return f"Affected batch count: {len(batches)}."
+    if kind == "category_seasonal":
+        trends = payload.get("trends") or []
+        if isinstance(trends, list) and trends:
+            return f"Seasonal trend signals: {len(trends)} item(s)."
+    if kind in {"winback_eligible", "dormant_with_vera"}:
+        dormant_days = payload.get("days_since_last_merchant_message") or payload.get("days_since_expiry")
+        if isinstance(dormant_days, int):
+            return f"Dormancy window: {dormant_days} day(s)."
     if ctr is not None and peer_ctr is not None:
         return f"Reference: CTR {ctr:.1%} vs peer {peer_ctr:.1%}."
     return ""
@@ -582,6 +612,10 @@ def trigger_action_line(kind: str, merchant: dict[str, Any], trigger: dict[str, 
     if kind in {"active_planning_intent"}:
         topic = trigger_payload(trigger).get("intent_topic") or "this plan"
         return f"Reply GO and I’ll send a ready-to-send draft for {topic}."
+    if kind in {"regulation_change", "supply_alert", "gbp_unverified"}:
+        return "Reply CHECKLIST for the exact compliance-first action order."
+    if kind in {"winback_eligible", "dormant_with_vera", "category_seasonal", "cde_opportunity"}:
+        return "Reply 1 for a quick fix, or 2 for a 7-day plan."
     return "Reply 1 for a quick fix, or 2 for a 7-day plan."
 
 
@@ -769,6 +803,14 @@ def build_template_name(kind: str, fallback: str = "generic") -> str:
         "lead_followup_due": "vera_lead_followup_v1",
         "photo_gap_detected": "vera_photo_gap_v1",
         "content_pack_ready": "vera_content_pack_v1",
+        "regulation_change": "vera_regulation_change_v1",
+        "supply_alert": "vera_supply_alert_v1",
+        "category_seasonal": "vera_category_seasonal_v1",
+        "gbp_unverified": "vera_gbp_unverified_v1",
+        "winback_eligible": "vera_winback_eligible_v1",
+        "dormant_with_vera": "vera_dormancy_reactivation_v1",
+        "cde_opportunity": "vera_cde_opportunity_v1",
+        "wedding_package_followup": "vera_wedding_followup_v1",
     }
     return mapping.get(kind, f"vera_{slugify(fallback)}_v1")
 
@@ -796,6 +838,7 @@ def cta_for_kind(kind: str, info_only: bool = False) -> str:
         "profile_attributes_missing",
         "profile_incomplete",
         "photo_gap_detected",
+        "wedding_package_followup",
     }
     if kind in binary_kinds:
         return "binary_yes_no"
@@ -807,16 +850,18 @@ def has_numeric_anchor(text: str) -> bool:
 
 
 def trigger_family(kind: str) -> str:
-    if kind.startswith("profile_") or kind in {"seo_visibility_gap"}:
+    if kind.startswith("profile_") or kind in {"seo_visibility_gap", "regulation_change", "gbp_unverified", "supply_alert"}:
         return "profile"
     if kind.startswith("review_"):
         return "review"
-    if kind.startswith("lead_"):
+    if kind.startswith("lead_") or kind in {"winback_eligible", "dormant_with_vera"}:
         return "lead"
     if kind in {"active_planning_intent"}:
         return "planning"
-    if kind.startswith("perf_") or kind in {"seasonal_perf_dip"}:
+    if kind.startswith("perf_") or kind in {"seasonal_perf_dip", "category_seasonal"}:
         return "perf"
+    if kind in {"cde_opportunity"}:
+        return "planning"
     return "general"
 
 
@@ -1168,6 +1213,21 @@ def build_first_touch(
         if language_mix and "hi" in normalize(customer.get("identity", {}).get("language_pref", "")):
             body = body.replace("Reply YES to book, or STOP if you want no more reminders.", "Reply YES to book, ya STOP if you want no more reminders.")
 
+    elif kind == "wedding_package_followup" and customer:
+        customer_name = customer_salutation(customer)
+        wedding_date = format_date(trigger_payload(trigger).get("wedding_date"))
+        trial_completed = format_date(trigger_payload(trigger).get("trial_completed"))
+        prep_program = trigger_payload(trigger).get("next_step_window_open") or "bridal prep plan"
+        body = f"Hi {customer_name}, {merchant_salutation(merchant, category_slug)} here."
+        if wedding_date:
+            body += f" Your wedding is on {wedding_date}."
+        if trial_completed:
+            body += f" Trial done on {trial_completed}."
+        body += f" Next best step: {str(prep_program).replace('_', ' ')}."
+        body += " Reply YES for the schedule options, or STOP if not needed."
+        cta_text = "Reply YES or STOP."
+        template_params = [customer_name, truncate(body, 120), cta_text]
+
     elif kind in {"perf_dip", "seasonal_perf_dip"}:
         delta_7d = safe_get(merchant, "performance", "delta_7d", default={}) or {}
         views_pct = delta_7d.get("views_pct")
@@ -1233,6 +1293,80 @@ def build_first_touch(
             body += f" Renewal amount: ₹{amount}."
         body += " Want me to send the renewal CTA you can approve in one tap?"
         cta_text = "Want me to prepare the renewal CTA?"
+        template_params = [salutation, truncate(body, 120), cta_text]
+
+    elif kind == "regulation_change":
+        deadline = format_date(trigger_payload(trigger).get("deadline_iso"))
+        body = f"{salutation}, compliance update for {merchant.get('identity', {}).get('name', 'your clinic')}."
+        if deadline:
+            body += f" Deadline: {deadline}."
+        body += " Priority: update protocol note, staff brief, and patient-facing disclosure."
+        lever = persuasion_line(kind, merchant, trigger)
+        if lever:
+            body += f" {lever}"
+        body += " Reply CHECKLIST and I’ll send the 5-step action order."
+        cta_text = "Reply CHECKLIST."
+        template_params = [salutation, truncate(body, 120), cta_text]
+
+    elif kind == "supply_alert":
+        molecule = trigger_payload(trigger).get("molecule") or "this molecule"
+        batches = trigger_payload(trigger).get("affected_batches") or []
+        manufacturer = trigger_payload(trigger).get("manufacturer")
+        body = f"{salutation}, urgent supply alert for {molecule}."
+        if isinstance(batches, list) and batches:
+            body += f" Affected batches: {', '.join(str(b) for b in batches[:3])}."
+        if manufacturer:
+            body += f" Manufacturer: {manufacturer}."
+        body += " Action now: quarantine stock, mark substitution list, and brief counter staff."
+        body += " Reply CHECKLIST and I’ll send the exact compliance script."
+        cta_text = "Reply CHECKLIST."
+        template_params = [salutation, truncate(body, 120), cta_text]
+
+    elif kind == "category_seasonal":
+        season = trigger_payload(trigger).get("season") or "this season"
+        trends = trigger_payload(trigger).get("trends") or []
+        body = f"{salutation}, demand-shift alert for {season.replace('_', ' ')}."
+        if isinstance(trends, list) and trends:
+            top_trends = ", ".join(str(t).replace("_", " ") for t in trends[:2])
+            body += f" Top signals: {top_trends}."
+        body += " Pick 1 for a shelf-priority checklist, or 2 for a 7-day demand plan."
+        body += " Reply 1 or 2."
+        cta_text = "Reply 1 or 2."
+        template_params = [salutation, truncate(body, 120), cta_text]
+
+    elif kind == "gbp_unverified":
+        uplift = trigger_payload(trigger).get("estimated_uplift_pct")
+        body = f"{salutation}, your Google profile is currently unverified."
+        if isinstance(uplift, (int, float)):
+            body += f" Estimated upside after verification: ~{uplift:.0%}."
+        body += " Pick 1 for 10-minute verification steps, or 2 for full profile recovery plan."
+        body += " Reply 1 or 2."
+        cta_text = "Reply 1 or 2."
+        template_params = [salutation, truncate(body, 120), cta_text]
+
+    elif kind in {"winback_eligible", "dormant_with_vera"}:
+        dormant_days = trigger_payload(trigger).get("days_since_last_merchant_message") or trigger_payload(trigger).get("days_since_expiry")
+        body = f"{salutation}, reactivation window is open for {merchant.get('identity', {}).get('name', 'your listing')}."
+        if isinstance(dormant_days, int):
+            body += f" Inactive period: {dormant_days} days."
+        if ctr is not None and peer_ctr is not None:
+            body += f" Current CTR {ctr:.1%} vs peer {peer_ctr:.1%}."
+        body += " Pick 1 for a one-message restart, or 2 for a 7-day reactivation plan."
+        body += " Reply 1 or 2."
+        cta_text = "Reply 1 or 2."
+        template_params = [salutation, truncate(body, 120), cta_text]
+
+    elif kind == "cde_opportunity":
+        credits = trigger_payload(trigger).get("credits")
+        fee = trigger_payload(trigger).get("fee")
+        body = f"{salutation}, quick CDE opportunity relevant to your practice."
+        if credits is not None:
+            body += f" Credits: {credits}."
+        if fee:
+            body += f" Fee: {fee.replace('_', ' ')}."
+        body += " Pick 1 for a short attendance plan, or 2 for authority-post draft using this topic."
+        body += " Reply 1 or 2."
+        cta_text = "Reply 1 or 2."
         template_params = [salutation, truncate(body, 120), cta_text]
 
     elif kind == "curious_ask_due":
@@ -1386,7 +1520,8 @@ def build_first_touch(
     specificity_line = trigger_specificity_line(kind, merchant, category, trigger)
     if specificity_line and specificity_line not in body:
         body += f" {specificity_line}"
-    if customer is None:
+    info_only = kind in {"milestone_reached"}
+    if customer is None and not info_only:
         action_line = trigger_action_line(kind, merchant, trigger)
         if action_line and action_line not in body:
             body += f" {action_line}"
@@ -1395,7 +1530,6 @@ def build_first_touch(
         body = hinglish_phrase(body, True)
 
     body = enforce_first_touch_quality(body, kind, scope, merchant, category, trigger)
-    info_only = kind in {"milestone_reached"}
     return ComposedMessage(
         body=body,
         cta=cta_for_kind(kind, info_only=info_only),
